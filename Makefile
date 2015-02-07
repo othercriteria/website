@@ -15,7 +15,15 @@ preview: _site
 sync: _site
 	s3cmd -P sync _site/ s3://www.mesokurtosis.com/
 
-clean: 
+stage:
+	cp -r ~/Dropbox/mesokurtosis/posts .
+	cp -r ~/Dropbox/mesokurtosis/images .
+
+unstage:
+	rm -rf posts/
+	rm -rf images/
+
+clean: unstage
 	find . -name '*~' | xargs rm
 	find . -name '#*#' | xargs rm
 	find . -name '*.o' | xargs rm
