@@ -10,7 +10,7 @@ _site: Main css/*.css posts/*
 	./site rebuild
 
 preview: _site
-	./site preview
+	./site watch
 
 sync: _site
 	s3cmd -P sync _site/ s3://www.mesokurtosis.com/
