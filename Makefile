@@ -3,14 +3,14 @@
 
 site: _site
 
-Main: Main.hs
-	ghc --make Main -optl -w
+Main: site.hs
+	ghc --make site -optl -w
 
 _site: Main css/*.css posts/*
-	./Main rebuild
+	./site rebuild
 
 preview: _site
-	./Main preview
+	./site preview
 
 sync: _site
 	s3cmd -P sync _site/ s3://www.mesokurtosis.com/
@@ -27,4 +27,4 @@ clean: unstage
 	find . -name '*~' | xargs rm
 	find . -name '#*#' | xargs rm
 	find . -name '*.o' | xargs rm
-	rm Main.hi
+	rm site.hi

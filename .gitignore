@@ -13,5 +13,6 @@ cabal.config
 /_site
 *~
 Main
+site
 posts/
 images/
