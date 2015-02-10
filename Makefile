@@ -13,7 +13,7 @@ preview: _site
 	./site watch
 
 sync: _site
-	s3cmd -P sync _site/ s3://www.mesokurtosis.com/
+	s3cmd -P sync _site/ s3://mesokurtosis.com/
 
 stage:
 	cp -r ~/Dropbox/mesokurtosis/posts .
