@@ -18,10 +18,12 @@ sync: _site
 stage:
 	cp -r ~/Dropbox/mesokurtosis/posts .
 	cp -r ~/Dropbox/mesokurtosis/images .
+	cp -r ~/Dropbox/mesokurtosis/links .
 
 unstage:
 	rm -rf posts/
 	rm -rf images/
+	rm -rf links/
 
 clean: unstage
 	find . -name '*~' | xargs rm
