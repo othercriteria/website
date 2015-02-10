@@ -4,7 +4,7 @@ import           Data.Monoid (mappend)
 import           Hakyll
 
 
---------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 main :: IO ()
 main = hakyll $ do
     match "favicon.ico" $ do
@@ -61,10 +61,19 @@ main = hakyll $ do
                 >>= loadAndApplyTemplate "templates/default.html" indexCtx
                 >>= relativizeUrls
 
+    match "error.html" $ do
+        route idRoute
+        compile $ do
+            let errorCtx = defaultContext
+
+            getResourceBody
+                >>= loadAndApplyTemplate "templates/default.html" errorCtx
+                >>= relativizeUrls
+                
     match "templates/*" $ compile templateCompiler
 
 
---------------------------------------------------------------------------------
+------------------------------------------------------------------------------
 postCtx :: Context String
 postCtx =
     dateField "date" "%B %e, %Y" `mappend`
