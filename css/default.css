@@ -1,8 +1,20 @@
 body {
     color: black;
+    background-color: #c9ffe5;
+    font-family: Constantia, "Lucida Bright", Lucidabright,
+                 "Lucida Serif", Lucida, "DejaVu Serif",
+		 "Bitstream Vera Serif", "Liberation Serif",
+                 Georgia, serif;
     font-size: 16px;
+    text-align: justify;
+    text-justify: inter-word;
     margin: 0px auto 0px auto;
-    width: 600px;
+    width: 800px;
+}
+
+div#foreground {
+    background-color: white;
+    padding: 10px;
 }
 
 div#header {
@@ -41,6 +53,11 @@ div#footer {
     text-align: right;
 }
 
+.sidebar {
+    float: right;
+    padding: 10px;
+}
+    
 h1 {
     font-size: 24px;
 }
