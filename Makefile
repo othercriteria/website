@@ -17,6 +17,7 @@ sync: _site
 
 analytics:
 	s3cmd sync s3://logs.mesokurtosis.com/root/ logs/
+	./analytics.py
 
 stage:
 	cp -r ~/Dropbox/mesokurtosis/posts .
