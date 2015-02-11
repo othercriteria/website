@@ -50,6 +50,20 @@ main = hakyll $ do
                 >>= loadAndApplyTemplate "templates/default.html" archiveCtx
                 >>= relativizeUrls
 
+    create ["links.html"] $ do
+        route idRoute
+        compile $ do
+            links <- loadAll "links/*"
+            let linksCtx =
+                    listField "links" linkCtx (return links) `mappend`
+                    constField "title" "Links"               `mappend`
+                    defaultContext
+
+            makeItem ""
+                >>= loadAndApplyTemplate "templates/links.html"   linksCtx
+                >>= loadAndApplyTemplate "templates/default.html" linksCtx
+                >>= relativizeUrls
+                
     match "index.html" $ do
         route idRoute
         compile $ do
@@ -57,7 +71,7 @@ main = hakyll $ do
             links <- loadAll "links/*"
             let indexCtx =
                     listField "posts" postCtx (return posts) `mappend`
-		    listField "links" linkCtx (return links) `mappend`
+                    listField "links" linkCtx (return links) `mappend`
                     constField "title" "Home"                `mappend`
                     defaultContext
 
