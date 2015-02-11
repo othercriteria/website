@@ -15,6 +15,9 @@ preview: _site
 sync: _site
 	s3cmd -P sync _site/ s3://mesokurtosis.com/
 
+analytics:
+	s3cmd sync s3://logs.mesokurtosis.com/root/ logs/
+
 stage:
 	cp -r ~/Dropbox/mesokurtosis/posts .
 	cp -r ~/Dropbox/mesokurtosis/images .
