@@ -9,7 +9,8 @@ main :: IO ()
 main = hakyll $ do
     match (fromList [ "favicon.ico"
                     , "robots.txt"
-		    , "googledf7fba8d8e31fb41.html"]) $ do
+		    , "googledf7fba8d8e31fb41.html"
+		    , "daniel-klein-resume-2015.pdf" ]) $ do
         route   idRoute
         compile copyFileCompiler
 	
