@@ -20,9 +20,7 @@ analytics:
 	./analytics.py
 
 stage:
-	cp -r ~/Dropbox/mesokurtosis/posts .
-	cp -r ~/Dropbox/mesokurtosis/images .
-	cp -r ~/Dropbox/mesokurtosis/links .
+	rsync -avzh --exclude '.DS_Store' ~/Dropbox/mesokurtosis/* .
 
 unstage:
 	rm -rf posts/
