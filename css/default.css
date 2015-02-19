@@ -85,3 +85,9 @@ div.figure {
     padding: 10px;
     margin: 10px;
 }
+
+p.caption {
+    background-color: #fcfcfc;
+    margin: 0px;
+    padding: 6px;
+}
