@@ -15,17 +15,20 @@
 		    <a href="/">A normal amount of kurtosis...</a>
 		</div>
 		<div id="navigation">
-		    <a href="/">Home</a>
-		    <a href="/about.html">About</a>
-		    <a href="/contact.html">Contact</a>
-		    <a href="/links.html">Links</a>
-		    <a href="/archive.html">Archive</a>
+		    <a href="/"
+		       $if(page-home)$ class="active" $endif$>Home</a>
+		    <a href="/about.html"
+		       $if(page-about)$ class="active" $endif$>About</a>
+		    <a href="/contact.html"
+		       $if(page-contact)$ class="active" $endif$>Contact</a>
+		    <a href="/links.html"
+		       $if(page-links)$ class="active" $endif$>Links</a>
+		    <a href="/archive.html"
+		       $if(page-archive)$ class="active" $endif$>Archive</a>
 		</div>
 	    </div>
 
 	    <div id="content">
-		<h1>$title$</h1>
-
 		$body$
 	    </div>
 	    <div style="clear:both;" id="footer">

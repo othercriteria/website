@@ -43,6 +43,10 @@ div#header #navigation a {
     text-transform: uppercase;
 }
 
+div#header #navigation a.active {
+    color: red;
+}
+
 div#footer {
     border-top: solid 2px black;
     color: #555;

@@ -1,4 +1,4 @@
---------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
 {-# LANGUAGE OverloadedStrings #-}
 import           Data.Monoid (mappend)
 import           Hakyll
@@ -9,8 +9,8 @@ main :: IO ()
 main = hakyll $ do
     match "root_static/*" $ do
         route   (gsubRoute "root_static/" (const ""))
-	compile copyFileCompiler
-	
+        compile copyFileCompiler
+        
     match "images/*" $ do
         route   idRoute
         compile copyFileCompiler
@@ -19,10 +19,24 @@ main = hakyll $ do
         route   idRoute
         compile compressCssCompiler
 
-    match (fromList ["about.md", "contact.md"]) $ do
+    match "about.md" $ do
+        let aboutCtx =
+                constField "page-about" "" `mappend`
+                defaultContext
+
         route   $ setExtension "html"
         compile $ pandocCompiler
-            >>= loadAndApplyTemplate "templates/default.html" defaultContext
+            >>= loadAndApplyTemplate "templates/default.html" aboutCtx
+            >>= relativizeUrls
+
+    match "contact.md" $ do
+        let contactCtx =
+                constField "page-contact" "" `mappend`
+                defaultContext
+
+        route   $ setExtension "html"
+        compile $ pandocCompiler
+            >>= loadAndApplyTemplate "templates/default.html" contactCtx
             >>= relativizeUrls
 
     match "posts/*" $ do
@@ -43,6 +57,7 @@ main = hakyll $ do
             let archiveCtx =
                     listField "posts" postCtx (return posts) `mappend`
                     constField "title" "Archives"            `mappend`
+                    constField "page-archive" ""             `mappend`
                     defaultContext
 
             makeItem ""
@@ -57,6 +72,7 @@ main = hakyll $ do
             let linksCtx =
                     listField "links" linkCtx (return links) `mappend`
                     constField "title" "Links"               `mappend`
+                    constField "page-links" ""               `mappend`
                     defaultContext
 
             makeItem ""
@@ -73,6 +89,7 @@ main = hakyll $ do
                     listField "posts" postCtx (return posts) `mappend`
                     listField "links" linkCtx (return links) `mappend`
                     constField "title" "Home"                `mappend`
+                    constField "page-home" ""                `mappend`
                     defaultContext
 
             getResourceBody
