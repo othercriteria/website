@@ -83,14 +83,13 @@ main = hakyll $ do
     match "index.html" $ do
         route idRoute
         compile $ do
-            posts <- recentFirst =<< loadAll "posts/*"
-	    let recent = take 3 posts
+            posts <- fmap (take 3) . recentFirst =<< loadAll "posts/*"
             links <- loadAll "links/*"
             let indexCtx =
-                    listField "posts" postCtx (return recent) `mappend`
-                    listField "links" linkCtx (return links)  `mappend`
-                    constField "title" "Home"                 `mappend`
-                    constField "page-home" ""                 `mappend`
+                    listField "posts" postCtx (return posts) `mappend`
+                    listField "links" linkCtx (return links) `mappend`
+                    constField "title" "Daniel L. Klein"     `mappend`
+                    constField "page-home" ""                `mappend`
                     defaultContext
 
             getResourceBody
