@@ -1,6 +1,6 @@
 -------------------------------------------------------------------------------
 {-# LANGUAGE OverloadedStrings #-}
-import           Data.Monoid (mappend)
+import           Data.Monoid (mappend, (<>))
 import           Hakyll
 
 
@@ -8,7 +8,7 @@ import           Hakyll
 main :: IO ()
 main = hakyll $ do
     match "root_static/*" $ do
-        route   (gsubRoute "root_static/" (const ""))
+        route   $ gsubRoute "root_static/" (const "")
         compile copyFileCompiler
         
     match "images/*" $ do
@@ -19,22 +19,24 @@ main = hakyll $ do
         route   idRoute
         compile compressCssCompiler
 
-    match "about.md" $ do
+    match "root/about.md" $ do
         let aboutCtx =
                 constField "page-about" "" `mappend`
                 defaultContext
 
-        route   $ setExtension "html"
+        route   $ (gsubRoute "root/" (const "")) `composeRoutes`
+	          setExtension "html"
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/default.html" aboutCtx
             >>= relativizeUrls
 
-    match "contact.md" $ do
+    match "root/contact.md" $ do
         let contactCtx =
                 constField "page-contact" "" `mappend`
                 defaultContext
 
-        route   $ setExtension "html"
+        route   $ gsubRoute "root/" (const "") `composeRoutes`
+	          setExtension "html"
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/default.html" contactCtx
             >>= relativizeUrls
@@ -80,8 +82,8 @@ main = hakyll $ do
                 >>= loadAndApplyTemplate "templates/default.html" linksCtx
                 >>= relativizeUrls
                 
-    match "index.html" $ do
-        route idRoute
+    match "root/index.html" $ do
+        route $ gsubRoute "root/" (const "") <> idRoute 
         compile $ do
             posts <- fmap (take 3) . recentFirst =<< loadAll "posts/*"
             links <- loadAll "links/*"
@@ -97,8 +99,8 @@ main = hakyll $ do
                 >>= loadAndApplyTemplate "templates/default.html" indexCtx
                 >>= relativizeUrls
 
-    match "error.html" $ do
-        route idRoute
+    match "root/error.html" $ do
+        route $ gsubRoute "root/" (const "") <> idRoute
         compile $ do
             let errorCtx = defaultContext
 
