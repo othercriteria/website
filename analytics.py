@@ -17,6 +17,9 @@ for lf in log_files:
     with file(os.path.join('logs',lf)) as l:
         first_in_file = True
         for line in l.readlines():
+            if 'HEAD' in line:
+                continue
+
             p = line.split(' - ')
 
             p0 = p[0].split(' ')
