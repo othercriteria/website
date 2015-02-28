@@ -20,6 +20,10 @@ for lf in log_files:
             if 'HEAD' in line:
                 continue
 
+            # Ignore Googlebot, Baidu, Yandex
+            if '66.249' in line or '180.76' in line or '100.43' in line:
+                continue
+
             p = line.split(' - ')
 
             p0 = p[0].split(' ')
