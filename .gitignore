@@ -18,3 +18,5 @@ posts/
 images/
 links/
 logs/
+cache/
+rmd_stage/

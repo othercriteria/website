@@ -1,12 +1,16 @@
 # Broadly inspired (copied at the outset) by Makefile at:
 #   https://github.com/KirinDave/public-website/blob/master/Makefile
 
+RMD_SRC = $(wildcard rmd_stage/*.Rmd)
+RMD_OUT = ${RMD_SRC:.Rmd=.md}
+SUFFIXES = .Rmd .md
+
 site: _site
 
 Main: site.hs
 	ghc --make site -optl -w
 
-_site: Main css/*.css posts/*
+_site: Main $(RMD_OUT)
 	./site rebuild
 
 preview: _site
@@ -20,12 +24,31 @@ analytics:
 	./analytics.py
 
 stage:
-	rsync -avzh --exclude '.DS_Store' ~/Dropbox/mesokurtosis/* .
+	rsync -avzh --exclude '.DS_Store' --exclude '*.Rmd' \
+	  ~/Dropbox/mesokurtosis/* .
+	rsync -avzh ~/Dropbox/mesokurtosis/posts/*.Rmd rmd_stage/
+
+%.md : %.Rmd
+	Rscript \
+	  -e "library(knitr)" \
+	  -e "opts_chunk[['set']](fig.path='$(patsubst %.md,%,$(@F))-')" \
+	  -e "opts_knit[['set']](base.dir='images/')" \
+	  -e "opts_knit[['set']](base.url='../images/')" \
+	  -e "knit('$<', output='$(@F)')"
+	mv $(@F) posts/
+
+cache_backup:
+	rsync -avzh cache/* ~/Dropbox/mesokurtosis/cache/
+
+cache_restore:
+	rsync -avzh ~/Dropbox/mesokurtosis/cache/* cache/
 
 unstage:
 	rm -rf posts/
 	rm -rf images/
 	rm -rf links/
+	rm -rf rmd_stage/
+	rm -rf cache/
 
 clean: unstage
 	find . -name '*~' | xargs rm
