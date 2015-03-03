@@ -1,16 +1,18 @@
 # Broadly inspired (copied at the outset) by Makefile at:
 #   https://github.com/KirinDave/public-website/blob/master/Makefile
 
-RMD_SRC = $(wildcard rmd_stage/*.Rmd)
-RMD_OUT = ${RMD_SRC:.Rmd=.md}
-SUFFIXES = .Rmd .md
 
-site: _site
+RMD_SRC := $(wildcard rmd_stage/*.Rmd)
+RMD_OUT := $(RMD_SRC:.Rmd=.md)
+.SUFFIXES:
+.SUFFIXES: .Rmd .md
+
+generate: _site
 
 Main: site.hs
 	ghc --make site -optl -w -dynamic -O2
 
-_site: Main $(RMD_OUT) css/*.css posts/* images/* links/* root/* root_static/*
+_site: Main $(RMD_OUT) posts/* css/*.css images/* links/* root/* root_static/*
 	./site rebuild
 
 preview: _site
@@ -28,7 +30,7 @@ stage:
 	  ~/Dropbox/mesokurtosis/* .
 	rsync -avzh ~/Dropbox/mesokurtosis/posts/*.Rmd rmd_stage/
 
-%.md : %.Rmd
+%.md: %.Rmd
 	Rscript \
 	  -e "library(knitr)" \
 	  -e "opts_chunk[['set']](fig.path='$(patsubst %.md,%,$(@F))-')" \
@@ -54,4 +56,4 @@ clean: unstage
 	find . -name '*~' | xargs rm
 	find . -name '#*#' | xargs rm
 	find . -name '*.o' | xargs rm
-	rm site.hi
+	rm -f site.hi
