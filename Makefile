@@ -8,9 +8,9 @@ SUFFIXES = .Rmd .md
 site: _site
 
 Main: site.hs
-	ghc --make site -optl -w
+	ghc --make site -optl -w -dynamic -O2
 
-_site: Main $(RMD_OUT)
+_site: Main $(RMD_OUT) css/*.css posts/* images/* links/* root/* root_static/*
 	./site rebuild
 
 preview: _site
