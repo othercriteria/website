@@ -23,6 +23,7 @@ sync: _site
 
 analytics:
 	s3cmd sync s3://logs.mesokurtosis.com/root/ logs/
+	rsync -avzh logs/ ~/Dropbox/mesokurtosis/logs/
 	./analytics.py
 
 stage:
