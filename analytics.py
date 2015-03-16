@@ -1,28 +1,37 @@
 #!/usr/bin/env python
 
+from __future__ import print_function
+
 import re
 import os
 import time
-from collections import defaultdict
+from collections import Counter, defaultdict
 
-ipre = re.compile('[0-9]+\.[0-9]+\.[0-9]+\.[0-9]')
+ipre = re.compile('(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})')
+
+# Ignore Googlebot, Baidu, Yandex, Trend Micro
+ignore_prefix = ['66.249', '180.76', '100.43', '150.70']
 
 log_files = os.listdir('logs/')
 
-ip_hits = defaultdict(int)
-date_hits = defaultdict(int)
-res_hits = defaultdict(int)
+ip_hits = Counter()
+prefix_hits = defaultdict(set)
+date_hits = Counter()
+res_hits = Counter()
 
 for lf in log_files:
-    with file(os.path.join('logs',lf)) as l:
+    with open(os.path.join('logs',lf), 'r') as l:
         first_in_file = True
         for line in l.readlines():
             if 'HEAD' in line:
                 continue
 
-            # Ignore Googlebot, Baidu, Yandex
-            if '66.249' in line or '180.76' in line or '100.43' in line:
-                continue
+            # Broadly search for prefixes to ignore
+            maybe_ip = ipre.search(line)
+            if not maybe_ip is None:
+                octets = maybe_ip.groups()
+                prefix = '.'.join(octets[0:2])
+                if prefix in ignore_prefix: continue
 
             p = line.split(' - ')
 
@@ -30,17 +39,26 @@ for lf in log_files:
             p1 = p[1].split(' ')
 
             t = time.strptime((p0[2] + p0[3])[1:-1], '%d/%b/%Y:%H:%M:%S+0000')
-            maybe_ip = p0[-1]
+            maybe_ip_loc = ipre.match(p0[-1])
             if len(p1) >= 3 and not p1[0] in ['-', '"GET', '"PUT']:
                 res_hits[p1[2]] += 1
 
-            if ipre.match(maybe_ip):
+            if not maybe_ip_loc is None:
                 if first_in_file:
-                    ip_hits[maybe_ip] += 1
+                    ip_hits[maybe_ip_loc.group()] += 1
+
+                    # Split IP into prefix and suffix
+                    octets = maybe_ip_loc.groups()
+                    prefix = '.'.join(octets[0:2])
+                    suffix = '.'.join(octets[2:4])
+                    prefix_hits[prefix].add(suffix)
                     date_hits[time.strftime("%Y-%m-%d", t)] += 1
                     
                     first_in_file = False
 
-print sorted([(ip_hits[k],k) for k in ip_hits], reverse = True)
-print sorted([(k, date_hits[k]) for k in date_hits])
-print sorted([(res_hits[k],k) for k in res_hits], reverse = True)
+print('IPs: ', ip_hits.most_common())
+print('IP prefixes: ', sorted([(k, prefix_hits[k]) for k in prefix_hits],
+                              key = lambda p: len(p[1]),
+                              reverse = True))
+print('Dates: ', sorted([(k, date_hits[k]) for k in date_hits]))
+print('Resources: ', res_hits.most_common())
