@@ -10,7 +10,9 @@ from collections import Counter, defaultdict
 ipre = re.compile('(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})')
 
 # Ignore Googlebot, Baidu, Yandex, Trend Micro
-ignore_prefix = ['66.249', '180.76', '100.43', '150.70']
+ignore_prefix = [tuple(p.split('.')) for p in ['66.249', '180.76', '100.43',
+                                               '150.70', '202.46',
+                                               '199.21.99']]
 
 log_files = os.listdir('logs/')
 
@@ -30,8 +32,13 @@ for lf in log_files:
             maybe_ip = ipre.search(line)
             if not maybe_ip is None:
                 octets = maybe_ip.groups()
-                prefix = '.'.join(octets[0:2])
-                if prefix in ignore_prefix: continue
+                match = False
+                for prefix in ignore_prefix:
+                    l = len(prefix)
+                    if octets[0:l] == prefix:
+                        match = True
+                if match:
+                    continue
 
             p = line.split(' - ')
 
