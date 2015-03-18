@@ -9,10 +9,10 @@ from collections import Counter, defaultdict
 
 ipre = re.compile('(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})')
 
-# Ignore Googlebot, Baidu, Yandex, Trend Micro
+# Ignore Google, Baidu, Yandex, Trend Micro, Bing
 ignore_prefix = [tuple(p.split('.')) for p in ['66.249', '180.76', '100.43',
-                                               '150.70', '202.46',
-                                               '199.21.99']]
+                                               '150.70', '202.46', '104.154',
+                                               '199.21.99', '157.55']]
 
 log_files = os.listdir('logs/')
 
@@ -66,9 +66,10 @@ for lf in log_files:
                     first_in_file = False
 
 print('IPs:', ip_hits.most_common())
-print('IP prefixes:', sorted([(k, prefix_hits[k]) for k in prefix_hits],
-                              key = lambda p: len(p[1]),
-                              reverse = True))
+print('IP prefixes:', sorted([(k, prefix_hits[k]) for k in prefix_hits
+                              if len(prefix_hits[k]) > 1],
+                             key = lambda p: len(p[1]),
+                             reverse = True))
 print('Dates:', sorted([(k, date_hits[k]) for k in date_hits]))
 print('Hours:', sorted([(k, hour_hits[k]) for k in hour_hits]))
 print('Resources:', res_hits.most_common())
