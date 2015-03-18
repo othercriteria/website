@@ -19,6 +19,7 @@ log_files = os.listdir('logs/')
 ip_hits = Counter()
 prefix_hits = defaultdict(set)
 date_hits = Counter()
+hour_hits = Counter()
 res_hits = Counter()
 
 for lf in log_files:
@@ -60,12 +61,14 @@ for lf in log_files:
                     suffix = '.'.join(octets[2:4])
                     prefix_hits[prefix].add(suffix)
                     date_hits[time.strftime("%Y-%m-%d", t)] += 1
+                    hour_hits[time.strftime("%H+0000'", t)] += 1
                     
                     first_in_file = False
 
-print('IPs: ', ip_hits.most_common())
-print('IP prefixes: ', sorted([(k, prefix_hits[k]) for k in prefix_hits],
+print('IPs:', ip_hits.most_common())
+print('IP prefixes:', sorted([(k, prefix_hits[k]) for k in prefix_hits],
                               key = lambda p: len(p[1]),
                               reverse = True))
-print('Dates: ', sorted([(k, date_hits[k]) for k in date_hits]))
-print('Resources: ', res_hits.most_common())
+print('Dates:', sorted([(k, date_hits[k]) for k in date_hits]))
+print('Hours:', sorted([(k, hour_hits[k]) for k in hour_hits]))
+print('Resources:', res_hits.most_common())
