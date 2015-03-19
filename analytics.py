@@ -76,6 +76,10 @@ for lf in log_files:
             if not line[7] == 'WEBSITE.GET.OBJECT':
                 continue
 
+            # Only analyze responses that actually served a real page
+            if not line[10][0] == '2':
+                continue
+
             remote_ip_str = line[4]
             remote_ip = ipre.search(remote_ip_str)
             octets = ipre.search(remote_ip_str).groups()
