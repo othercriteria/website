@@ -31,6 +31,8 @@ region_hits = Counter()
 date_hits = Counter()
 hour_hits = Counter()
 res_hits = Counter()
+referrer_hits = Counter()
+agent_hits = Counter()
 
 class GeoIP():
     def __init__(self):
@@ -88,12 +90,19 @@ for lf in log_files:
                 continue
 
             key = line[8]
-            if key == '"-"':
+            if key == '-':
                 continue
             res_hits[key] += 1
 
             if first_in_file:
                 ip_hits[remote_ip_str] += 1
+
+                referrer = line[16]
+                if not referrer == '-':
+                    referrer_hits[referrer] += 1
+                agent = line[17]
+                if not agent == '-':
+                    agent_hits[agent.split(' ')[0]] += 1
 
                 report = geoip.fetch(remote_ip_str)
 
@@ -126,4 +135,6 @@ print('Countries:', country_hits.most_common())
 print('Regions:', region_hits.most_common())
 print('Dates:', sorted([(k, date_hits[k]) for k in date_hits]))
 print('Hours:', sorted([(k, hour_hits[k]) for k in hour_hits]))
+print('Referrers:', referrer_hits.most_common())
+print('User-Agents:', agent_hits.most_common())
 print('Resources:', res_hits.most_common())
