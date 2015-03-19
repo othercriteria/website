@@ -2,6 +2,7 @@
 
 # Breaking Python 2.x compatibility to use redesigned HTTP libraries
 
+import csv
 import re
 import os
 import time
@@ -65,57 +66,53 @@ geoip = GeoIP()
 
 for lf in log_files:
     with open(os.path.join('logs',lf), 'r') as l:
+        log_reader = csv.reader(l, delimiter = ' ', quotechar = '"')
+
         first_in_file = True
-        for line in l.readlines():
-            if 'HEAD' in line:
+        for line in log_reader:
+            # Only analyze GET requests
+            if not line[7] == 'WEBSITE.GET.OBJECT':
                 continue
 
-            # Broadly search for prefixes to ignore
-            maybe_ip = ipre.search(line)
-            if not maybe_ip is None:
-                octets = maybe_ip.groups()
-                match = False
-                for prefix in ignore_prefix:
-                    l = len(prefix)
-                    if octets[0:l] == prefix:
-                        match = True
-                if match:
-                    continue
+            remote_ip_str = line[4]
+            remote_ip = ipre.search(remote_ip_str)
+            octets = ipre.search(remote_ip_str).groups()
 
-            p = line.split(' - ')
+            # Check IP against prefixes to exclude from analysis
+            match = False
+            for prefix in ignore_prefix:
+                l = len(prefix)
+                if octets[0:l] == prefix:
+                    match = True
+            if match:
+                continue
 
-            p0 = p[0].split(' ')
-            p1 = p[1].split(' ')
+            key = line[8]
+            if key == '"-"':
+                continue
+            res_hits[key] += 1
 
-            t = time.strptime((p0[2] + p0[3])[1:-1], '%d/%b/%Y:%H:%M:%S+0000')
-            maybe_ip_loc = ipre.match(p0[-1])
-            if len(p1) >= 3 and not p1[0] in ['-', '"GET', '"PUT']:
-                res_hits[p1[2]] += 1
+            if first_in_file:
+                ip_hits[remote_ip_str] += 1
 
-            if not maybe_ip_loc is None:
-                if first_in_file:
-                    ip_hits[maybe_ip_loc.group()] += 1
+                report = geoip.fetch(remote_ip_str)
 
-                    report = geoip.fetch(maybe_ip_loc.group())
+                if 'country_name' in report:
+                    country_name = report['country_name']
+                    if not country_name == '':
+                        country_hits[report['country_name']] += 1
+                if 'region_name' in report:
+                    region_name = report['region_name']
+                    if not region_name == '':
+                        region_hits[report['region_name']] += 1
 
-                    if 'country_name' in report:
-                        country_name = report['country_name']
-                        if not country_name == '':
-                            country_hits[report['country_name']] += 1
-                    if 'region_name' in report:
-                        region_name = report['region_name']
-                        if not region_name == '':
-                            region_hits[report['region_name']] += 1
+                prefix_hits[octets[0:2]].add(octets[2:4])
 
-                    # Split IP into prefix and suffix
-                    octets = maybe_ip_loc.groups()
-                    prefix = '.'.join(octets[0:2])
-                    suffix = '.'.join(octets[2:4])
-                    prefix_hits[prefix].add(suffix)
-                    date_hits[time.strftime("%Y-%m-%d", t)] += 1
-                    hour_hits[time.strftime("%H+0000'", t)] += 1
-                    
-                    first_in_file = False
+                t = time.strptime(line[2][1:], '%d/%b/%Y:%H:%M:%S')
+                date_hits[time.strftime("%Y-%m-%d", t)] += 1
+                hour_hits[time.strftime("%H+0000'", t)] += 1
+
+                first_in_file = False
 
 # Cache GeoIP data
 geoip.dump()
