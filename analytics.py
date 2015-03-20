@@ -13,13 +13,10 @@ import json
 ipre = re.compile('(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})')
 
 # Ignore Google, Baidu, Yandex, Trend Micro, Bing, Yahoo, etc.
-ignore_prefix = [tuple(p.split('.')) for p in ['66.249', '180.76', '100.43',
-                                               '150.70', '202.46', '104.154',
-                                               '199.21.99', '157.55',
-                                               '74.6.254.111',
-                                               '96.238.59.67',
-                                               '75.130.244.15',
-                                               '199.16']]
+ignore_prefix = [tuple(p.split('.'))
+                 for p in ['66.249', '180.76', '100.43', '150.70', '202.46',
+                           '104.154', '199.21.99', '157.55', '74.6.254.111',
+                           '96.238.59.67', '75.130.244.15', '199.16']]
 
 log_files = os.listdir('logs/')
 
@@ -65,9 +62,9 @@ class GeoIP():
 
 geoip = GeoIP()
 
-for lf in log_files:
-    with open(os.path.join('logs',lf), 'r') as l:
-        log_reader = csv.reader(l, delimiter = ' ', quotechar = '"')
+for infile in log_files:
+    with open(os.path.join('logs', infile), 'r') as log:
+        log_reader = csv.reader(log, delimiter = ' ', quotechar = '"')
 
         first_in_file = True
         for line in log_reader:
@@ -98,6 +95,9 @@ for lf in log_files:
             res_hits[key] += 1
 
             if first_in_file:
+                # As properties of the client, these only get recorded
+                # once per connection
+
                 ip_hits[remote_ip_str] += 1
 
                 referrer = line[16]
@@ -108,7 +108,6 @@ for lf in log_files:
                     agent_hits[agent.split(' ')[0]] += 1
 
                 report = geoip.fetch(remote_ip_str)
-
                 if 'country_name' in report:
                     country_name = report['country_name']
                     if not country_name == '':
