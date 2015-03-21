@@ -5,6 +5,8 @@ title: About
 See the [home page](/index.html) for a biographical sketch and links
 to my other web presences.
 
+But if you want to see my describe myself through tweets:
+
 <blockquote class="twitter-tweet" lang="en"><p>A human should be able to play a status game, play a status game, play a status game, and play a status game. Specialization is for insects.</p>&mdash; Member Of Species (@MemberOfSpecies) <a href="https://twitter.com/MemberOfSpecies/status/538239926228099072">November 28, 2014</a></blockquote>
 <script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
 
