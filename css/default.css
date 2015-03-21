@@ -106,8 +106,10 @@ p.caption {
 
 blockquote {
     background-color: #fcfcfc;
-    margin-left: 3em;
-    margin-right: 3em;
+    margin-left: 2em;
+    margin-right: 2em;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
 }
 
 ul {
