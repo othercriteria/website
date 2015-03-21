@@ -115,3 +115,8 @@ blockquote {
 ul {
     padding-left: 2em;
 }
+
+pre {
+    overflow: auto;
+    resize: both;
+}
