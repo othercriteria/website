@@ -85,7 +85,7 @@ main = hakyll $ do
     match "root/index.html" $ do
         route $ gsubRoute "root/" (const "") <> idRoute 
         compile $ do
-            posts <- fmap (take 3) . recentFirst =<< loadAll "posts/*"
+            posts <- fmap (take 5) . recentFirst =<< loadAll "posts/*"
             links <- loadAll "links/*"
             let indexCtx =
                     listField "posts" postCtx (return posts) `mappend`
