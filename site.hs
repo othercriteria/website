@@ -114,7 +114,7 @@ main = hakyll $ do
 ------------------------------------------------------------------------------
 postCtx :: Context String
 postCtx =
-    dateField "date" "%b %e, %Y" `mappend`
+    dateField "date" "%e %b %Y" `mappend`
     defaultContext
 
 linkCtx :: Context String
