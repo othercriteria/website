@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-# Breaking Python 2.x compatibility to use redesigned HTTP libraries
-
 import csv
 import re
 import os
