@@ -15,6 +15,16 @@ ipre = re.compile('(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})')
 ignore_prefix = [tuple(p.split('.'))
                  for p in ['150.70', '202.46', '75.130.244.15', '64.233']]
 
+# Tests for bot-like behavior
+def suspicious_key(key):
+    return (key == 'robots.txt' or 'googled' in key)
+def suspicious_referrer(referrer):
+    return ('semalt' in referrer or 'buttons' in referrer)
+def suspicious_agent(agent):
+    return ('bot' in agent or 'Bot' in agent or 'spider' in agent or
+            'Google favicon' in agent or 'Disqus' in agent or
+            'prismatic' in agent)
+
 log_files = os.listdir('logs/')
 
 ip_hits = Counter()
@@ -68,16 +78,12 @@ for infile in log_files:
 
         for line in log_reader:
             remote_ip_str = line[4]
-            key = line[8]
-            referrer = line[16]
-            agent = line[17]
 
-            if key == 'robots.txt':
+            if suspicious_key(line[8]):
                 possible_robots.add(remote_ip_str)
-            if 'semalt' in referrer or 'buttons' in referrer:
+            if suspicious_referrer(line[16]):
                 possible_robots.add(remote_ip_str)
-            if ('bot' in agent or 'Bot' in agent or 'spider' in agent or
-                'Google favicon' in agent or 'Disqus' in agent):
+            if suspicious_agent(line[17]):
                 possible_robots.add(remote_ip_str)
 
 for infile in log_files:
@@ -86,7 +92,7 @@ for infile in log_files:
 
         first_in_file = True
         for line in log_reader:
-            # Parese remote IP so it can be checked against prefixes
+            # Parse remote IP so it can be checked against prefixes
             remote_ip_str = line[4]
             remote_ip = ipre.search(remote_ip_str)
             octets = ipre.search(remote_ip_str).groups()
