@@ -14,7 +14,8 @@ ipre = re.compile('(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})')
 ignore_prefix = [tuple(p.split('.'))
                  for p in ['66.249', '180.76', '100.43', '150.70', '202.46',
                            '104.154', '199.21.99', '157.55', '74.6.254.111',
-                           '96.238.59.67', '75.130.244.15', '199.16']]
+                           '96.238.59.67', '75.130.244.15', '199.16',
+                           '54', '17.142', '192.99', '64.233']]
 
 log_files = os.listdir('logs/')
 
@@ -119,7 +120,7 @@ for infile in log_files:
                     if not region_name == '':
                         region_hits[report['region_name']] += 1
 
-                prefix_hits[octets[0:2]].add(octets[2:4])
+                prefix_hits['.'.join(octets[0:2])].add('.'.join(octets[2:4]))
 
                 t = time.strptime(line[2][1:], '%d/%b/%Y:%H:%M:%S')
                 date_hits[time.strftime("%Y-%m-%d", t)] += 1
