@@ -74,9 +74,10 @@ for infile in log_files:
 
             if key == 'robots.txt':
                 possible_robots.add(remote_ip_str)
-            if 'semalt' in referrer:
+            if 'semalt' in referrer or 'buttons' in referrer:
                 possible_robots.add(remote_ip_str)
-            if 'bot' in agent or 'Bot' in agent or 'Google favicon' in agent:
+            if ('bot' in agent or 'Bot' in agent or 'spider' in agent or
+                'Google favicon' in agent or 'Disqus' in agent):
                 possible_robots.add(remote_ip_str)
 
 for infile in log_files:
