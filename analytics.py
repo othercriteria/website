@@ -29,6 +29,7 @@ hour_hits = Counter()
 res_hits = Counter()
 referrer_hits = Counter()
 agent_hits = Counter()
+possible_robots = set()
 
 class GeoIP():
     def __init__(self):
@@ -94,6 +95,9 @@ for infile in log_files:
                 continue
             res_hits[key] += 1
 
+            if key == 'robots.txt':
+                possible_robots.add(remote_ip_str)
+
             if first_in_file:
                 # As properties of the client, these only get recorded
                 # once per connection
@@ -140,3 +144,4 @@ print('Hours:', sorted([(k, hour_hits[k]) for k in hour_hits]))
 print('Referrers:', referrer_hits.most_common())
 print('User-Agents:', agent_hits.most_common())
 print('Resources:', res_hits.most_common())
+print('Possible robots at large:', possible_robots)
