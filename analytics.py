@@ -10,12 +10,10 @@ import json
 
 ipre = re.compile('(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})')
 
-# Ignore Google, Baidu, Yandex, Trend Micro, Bing, Yahoo, etc.
+# IP ranges to exclude that aren't caught automatically for bot-like
+# behavior
 ignore_prefix = [tuple(p.split('.'))
-                 for p in ['66.249', '180.76', '100.43', '150.70', '202.46',
-                           '104.154', '199.21.99', '157.55', '74.6.254.111',
-                           '96.238.59.67', '75.130.244.15', '199.16',
-                           '54', '17.142', '192.99', '64.233']]
+                 for p in ['150.70', '202.46', '75.130.244.15', '64.233']]
 
 log_files = os.listdir('logs/')
 
@@ -29,6 +27,7 @@ res_hits = Counter()
 referrer_hits = Counter()
 agent_hits = Counter()
 possible_robots = set()
+excluded = set()
 
 class GeoIP():
     def __init__(self):
@@ -62,12 +61,49 @@ class GeoIP():
 
 geoip = GeoIP()
 
+# First pass to detect non-human access
+for infile in log_files:
+    with open(os.path.join('logs', infile), 'r') as log:
+        log_reader = csv.reader(log, delimiter = ' ', quotechar = '"')
+
+        for line in log_reader:
+            remote_ip_str = line[4]
+            key = line[8]
+            referrer = line[16]
+            agent = line[17]
+
+            if key == 'robots.txt':
+                possible_robots.add(remote_ip_str)
+            if 'semalt' in referrer:
+                possible_robots.add(remote_ip_str)
+            if 'bot' in agent or 'Bot' in agent or 'Google favicon' in agent:
+                possible_robots.add(remote_ip_str)
+
 for infile in log_files:
     with open(os.path.join('logs', infile), 'r') as log:
         log_reader = csv.reader(log, delimiter = ' ', quotechar = '"')
 
         first_in_file = True
         for line in log_reader:
+            # Parese remote IP so it can be checked against prefixes
+            remote_ip_str = line[4]
+            remote_ip = ipre.search(remote_ip_str)
+            octets = ipre.search(remote_ip_str).groups()
+
+            # Check IP against manual prefixes to exclude from analysis
+            match = False
+            for prefix in ignore_prefix:
+                l = len(prefix)
+                if octets[0:l] == prefix:
+                    match = True
+            if match:
+                excluded.add(remote_ip_str)
+                break
+
+            # Check IP against dynamic possible robots to exclude from analysis
+            if remote_ip_str in possible_robots:
+                break
+
             # Only analyze GET requests
             if not line[7] == 'WEBSITE.GET.OBJECT':
                 continue
@@ -76,26 +112,10 @@ for infile in log_files:
             if not line[10][0] == '2':
                 continue
 
-            remote_ip_str = line[4]
-            remote_ip = ipre.search(remote_ip_str)
-            octets = ipre.search(remote_ip_str).groups()
-
-            # Check IP against prefixes to exclude from analysis
-            match = False
-            for prefix in ignore_prefix:
-                l = len(prefix)
-                if octets[0:l] == prefix:
-                    match = True
-            if match:
-                continue
-
             key = line[8]
             if key == '-':
                 continue
             res_hits[key] += 1
-
-            if key == 'robots.txt':
-                possible_robots.add(remote_ip_str)
 
             if first_in_file:
                 # As properties of the client, these only get recorded
@@ -130,12 +150,13 @@ for infile in log_files:
 
 # Cache GeoIP data
 geoip.dump()
-                    
+
 print('IPs:', ip_hits.most_common())
 print('IP prefixes:', sorted([(k, prefix_hits[k]) for k in prefix_hits
                               if len(prefix_hits[k]) > 1],
                              key = lambda p: len(p[1]),
                              reverse = True))
+print('Suspected robots:', possible_robots)
 print('Countries:', country_hits.most_common())
 print('Regions:', region_hits.most_common())
 print('Dates:', sorted([(k, date_hits[k]) for k in date_hits]))
@@ -143,4 +164,4 @@ print('Hours:', sorted([(k, hour_hits[k]) for k in hour_hits]))
 print('Referrers:', referrer_hits.most_common())
 print('User-Agents:', agent_hits.most_common())
 print('Resources:', res_hits.most_common())
-print('Possible robots at large:', possible_robots)
+print('Redundant manual exclusions:', possible_robots.intersection(excluded))
