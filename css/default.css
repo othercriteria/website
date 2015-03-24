@@ -80,16 +80,18 @@ div.info {
 }
 
 div.link {
-    background-color: #f9f9f9;
-    padding: 10px;
-    margin: 10px;
+    background-color: #fcfcfc;
+    margin-left: 2em;
+    margin-right: 2em;
+    padding-left: 0.5em;
+    padding-right: 0.5em;
 }
 
 div.figure {
     display: inline-block;
     background-color: #f9f9f9;
-    padding: 10px;
-    margin: 10px;
+    margin: 0 1em 0 1em;
+    padding: 0.5em;
 }
 
 img {
