@@ -1,6 +1,6 @@
 body {
+    background: linear-gradient(to right, brown, RGB(153,153,127), brown);
     color: #333333;
-    background-color: brown;
     font-family: Calibri, Candara, Segoe,
     		 'Segoe UI', Optima, Arial,
 		 sans-serif;
@@ -13,7 +13,7 @@ body {
 
 div#foreground {
     background-color: white;
-    padding: 20px;
+    padding: 1.5em;
 }
 
 div#header {
