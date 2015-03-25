@@ -25,7 +25,7 @@ main = hakyll $ do
                 defaultContext
 
         route   $ (gsubRoute "root/" (const "")) `composeRoutes`
-	          setExtension "html"
+                  setExtension "html"
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/default.html" aboutCtx
             >>= relativizeUrls
@@ -36,7 +36,7 @@ main = hakyll $ do
                 defaultContext
 
         route   $ gsubRoute "root/" (const "") `composeRoutes`
-	          setExtension "html"
+                  setExtension "html"
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/default.html" contactCtx
             >>= relativizeUrls
@@ -44,21 +44,21 @@ main = hakyll $ do
     match "posts/*" $ do
         tags <- buildTags "posts/*" (fromCapture "tags/*.html")
 
-	tagsRules tags $ \tag pattern -> do
-	    let title = "Posts tagged \"" ++ tag ++ "\""
-	    route idRoute
-	    compile $ do
-	        posts <- recentFirst =<< loadAll pattern
-		let ctx = constField "title" title                 `mappend`
-		          listField "posts" postCtx (return posts) `mappend`
-			  defaultContext
+        tagsRules tags $ \tag pattern -> do
+            let title = "Posts tagged \"" ++ tag ++ "\""
+            route idRoute
+            compile $ do
+                posts <- recentFirst =<< loadAll pattern
+                let ctx = constField "title" title                 `mappend`
+                          listField "posts" postCtx (return posts) `mappend`
+                          defaultContext
 
                 makeItem ""
-		    >>= loadAndApplyTemplate "templates/tag.html"     ctx
-		    >>= loadAndApplyTemplate "templates/default.html" ctx
-		    >>= relativizeUrls
+                    >>= loadAndApplyTemplate "templates/tag.html"     ctx
+                    >>= loadAndApplyTemplate "templates/default.html" ctx
+                    >>= relativizeUrls
 
-	let postCtxTagged = (postCtxWithTags tags)
+        let postCtxTagged = postCtxWithTags tags
 
         route $ setExtension "html"
         compile $ pandocCompiler
@@ -104,10 +104,12 @@ main = hakyll $ do
         route $ gsubRoute "root/" (const "") <> idRoute 
         compile $ do
             posts <- fmap (take 5) . recentFirst =<< loadAll "posts/*"
+            tags <- buildTags "posts/*" (fromCapture "tags/*.html")
             links <- loadAll "links/*"
             let indexCtx =
                     listField "posts" postCtx (return posts) `mappend`
                     listField "links" linkCtx (return links) `mappend`
+                    tagCloudField "tag-cloud" 80 125 tags    `mappend`
                     constField "title" "Daniel L. Klein"     `mappend`
                     constField "page-home" ""                `mappend`
                     defaultContext

@@ -99,6 +99,12 @@ img {
     height: auto;
 }
 
+div.tag-cloud {
+    background-color: #f9f9f9;
+    margin: 0 1em 0 1em;
+    padding: 0.5em;
+}
+
 p.caption {
     font-size: 14px;
     background-color: #fcfcfc;
