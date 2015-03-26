@@ -28,7 +28,6 @@ def suspicious_agent(agent):
 log_files = os.listdir('logs/')
 
 ip_hits = Counter()
-prefix_hits = defaultdict(set)
 country_hits = Counter()
 region_hits = Counter()
 date_hits = Counter()
@@ -147,8 +146,6 @@ for infile in log_files:
                     if not region_name == '':
                         region_hits[report['region_name']] += 1
 
-                prefix_hits['.'.join(octets[0:2])].add('.'.join(octets[2:4]))
-
                 t = time.strptime(line[2][1:], '%d/%b/%Y:%H:%M:%S')
                 date_hits[time.strftime("%Y-%m-%d", t)] += 1
                 hour_hits[time.strftime("%H+0000'", t)] += 1
@@ -159,11 +156,6 @@ for infile in log_files:
 geoip.dump()
 
 print('IPs:', ip_hits.most_common())
-print('IP prefixes:', sorted([(k, prefix_hits[k]) for k in prefix_hits
-                              if len(prefix_hits[k]) > 1],
-                             key = lambda p: len(p[1]),
-                             reverse = True))
-print('Suspected robots:', possible_robots)
 print('Countries:', country_hits.most_common())
 print('Regions:', region_hits.most_common())
 print('Dates:', sorted([(k, date_hits[k]) for k in date_hits]))
