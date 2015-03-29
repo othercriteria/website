@@ -90,8 +90,9 @@ div.link {
 div.figure {
     display: inline-block;
     background-color: #f9f9f9;
-    margin: 0 1em 0 1em;
+    margin: 0 2em 0 2em;
     padding: 0.5em;
+    max-width: 90%;
 }
 
 img {
