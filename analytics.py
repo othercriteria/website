@@ -8,6 +8,13 @@ from collections import Counter, defaultdict
 import http.client
 import json
 
+# Interface to R for analysis and visualization
+import rpy2.robjects as robjects
+from rpy2.robjects.packages import importr
+graphics = importr('graphics')
+grdevices = importr('grDevices')
+circular = importr('circular')
+
 ipre = re.compile('(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})')
 
 # IP ranges to exclude that aren't caught automatically for bot-like
@@ -159,6 +166,7 @@ for infile in log_files:
 # Cache GeoIP data
 geoip.dump()
 
+# Basic report to console
 print('IPs:', ip_hits.most_common(), '\n')
 print('Countries:', country_hits.most_common(), '\n')
 print('Regions:', region_hits.most_common(), '\n')
@@ -168,3 +176,8 @@ print('Referrers:', referrer_hits.most_common(), '\n')
 print('User-Agents:', agent_hits.most_common(), '\n')
 print('Resources:', res_hits.most_common(), '\n')
 print('Redundant manual exclusions:', possible_robots.intersection(excluded))
+
+# Generate figures
+grdevices.pdf('analytics/hits_by_date.pdf')
+graphics.plot(list(range(len(date_hits))), [date_hits[k] for k in date_hits])
+grdevices.dev_off()
