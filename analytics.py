@@ -13,13 +13,17 @@ ipre = re.compile('(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})')
 # IP ranges to exclude that aren't caught automatically for bot-like
 # behavior
 ignore_prefix = [tuple(p.split('.'))
-                 for p in ['150.70', '202.46', '75.130.244.15', '64.233']]
+                 for p in ['150.70', '202.46', '75.130.244.15', '64.233',
+                           '96.47.226.21', '178.63.97.34', '89.31.57.5',
+                           '85.159.113.228', '148.251.77.34',
+                           '178.217.187.39']]
 
 # Tests for bot-like behavior
 def suspicious_key(key):
     return (key == 'robots.txt' or 'googled' in key)
 def suspicious_referrer(referrer):
-    return ('semalt' in referrer or 'buttons' in referrer)
+    return ('semalt' in referrer or 'buttons' in referrer or
+            'best-seo' in referrer)
 def suspicious_agent(agent):
     return ('bot' in agent or 'Bot' in agent or 'spider' in agent or
             'Google favicon' in agent or 'Disqus' in agent or
