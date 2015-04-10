@@ -60,3 +60,7 @@ clean: unstage
 	find . -name '#*#' | xargs rm
 	find . -name '*.o' | xargs rm
 	rm -f site.hi
+
+hakyll:
+	cabal update
+	cabal install --only-dependencies
