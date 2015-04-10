@@ -24,6 +24,7 @@ sync: _site
 analytics:
 	s3cmd sync s3://logs.mesokurtosis.com/root/ logs/
 	rsync -avzh logs/ ~/Dropbox/mesokurtosis/logs/
+	mkdir -p analytics_out
 	./analytics.py
 
 stage:
@@ -52,6 +53,7 @@ unstage:
 	rm -rf links/
 	rm -rf rmd_stage/
 	rm -rf cache/
+	rm -rf analytics_out
 
 clean: unstage
 	find . -name '*~' | xargs rm
