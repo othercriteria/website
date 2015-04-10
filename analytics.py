@@ -3,13 +3,14 @@
 import csv
 import re
 import os
-import time
+from datetime import datetime
 from collections import Counter, defaultdict
 import http.client
 import json
 
 # Interface to R for analysis and visualization
 import rpy2.robjects as robjects
+from rpy2.robjects import FloatVector
 from rpy2.robjects.packages import importr
 graphics = importr('graphics')
 grdevices = importr('grDevices')
@@ -43,6 +44,7 @@ country_hits = Counter()
 region_hits = Counter()
 date_hits = Counter()
 hour_hits = Counter()
+time_hits = []
 res_hits = Counter()
 referrer_hits = Counter()
 agent_hits = Counter()
@@ -157,9 +159,10 @@ for infile in log_files:
                     if not region_name == '':
                         region_hits[report['region_name']] += 1
 
-                t = time.strptime(line[2][1:], '%d/%b/%Y:%H:%M:%S')
-                date_hits[time.strftime("%Y-%m-%d", t)] += 1
-                hour_hits[time.strftime("%H+0000'", t)] += 1
+                t = datetime.strptime(line[2][1:], '%d/%b/%Y:%H:%M:%S')
+                date_hits[t.strftime("%Y-%m-%d")] += 1
+                hour_hits[t.strftime("%H+0000'")] += 1
+                time_hits.append(t.hour + t.minute / 60 + t.second / 3600)
 
                 first_in_file = False
 
@@ -176,8 +179,30 @@ print('Referrers:', referrer_hits.most_common(), '\n')
 print('User-Agents:', agent_hits.most_common(), '\n')
 print('Resources:', res_hits.most_common(), '\n')
 print('Redundant manual exclusions:', possible_robots.intersection(excluded))
+print('\n')
 
 # Generate figures
-grdevices.pdf('analytics/hits_by_date.pdf')
-graphics.plot(list(range(len(date_hits))), [date_hits[k] for k in date_hits])
+time_hits_vec = FloatVector(time_hits)
+grdevices.png('analytics_out/hits_by_time.png')
+graphics.hist(time_hits_vec, main = 'Hits by time', breaks = 24,
+              xlab = 'time (hours past 00:00 UTC)', ylab = 'hits')
+grdevices.dev_off()
+
+hits_circ = circular.circular(time_hits_vec,
+                              units = 'hours', template = 'clock24')
+hits_density = circular.density_circular(hits_circ, bw = 100)
+hits_mle = circular.mle_vonmises(hits_circ)
+mle_samp = circular.rvonmises(n = len(time_hits),
+                              mu = hits_mle.rx2('mu'),
+                              kappa = hits_mle.rx2('kappa'))
+mle_density = circular.density_circular(mle_samp, bw = 100)
+hits_bs = circular.mle_vonmises_bootstrap_ci(hits_circ)
+print('Von Mises fit for hits by time (hours past 00:00 UTC)')
+print(hits_bs)
+
+grdevices.png('analytics_out/hits_by_time_von_mises_bs_mu.png')
+circular.rose_diag(hits_bs.rx('mu'), bins = 24,
+                   main = 'Hits by time (hours past 00:00 UTC)')
+graphics.lines(hits_density, offset = 0.5, shrink = 0.5, col = 'blue')
+graphics.lines(mle_density, offset = 0.5, shrink = 0.5, col = 'red')
 grdevices.dev_off()
