@@ -10,13 +10,13 @@ RMD_OUT := $(RMD_SRC:.Rmd=.md)
 generate: _site
 
 Main: site.hs
-	ghc --make site -optl -w -dynamic -O2
+	halcyon build
 
 _site: Main $(RMD_OUT) posts/* css/*.css images/* links/* root/* root_static/*
-	./site rebuild
+	site rebuild
 
 preview: _site
-	./site watch
+	site watch
 
 sync: _site
 	s3cmd -P sync _site/ s3://mesokurtosis.com/
