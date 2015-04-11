@@ -12,6 +12,7 @@ import json
 import rpy2.robjects as robjects
 from rpy2.robjects import FloatVector
 from rpy2.robjects.packages import importr
+base = importr('base')
 graphics = importr('graphics')
 grdevices = importr('grDevices')
 circular = importr('circular')
@@ -191,18 +192,35 @@ grdevices.dev_off()
 hits_circ = circular.circular(time_hits_vec,
                               units = 'hours', template = 'clock24')
 hits_density = circular.density_circular(hits_circ, bw = 100)
-hits_mle = circular.mle_vonmises(hits_circ)
-mle_samp = circular.rvonmises(n = len(time_hits),
-                              mu = hits_mle.rx2('mu'),
-                              kappa = hits_mle.rx2('kappa'))
-mle_density = circular.density_circular(mle_samp, bw = 100)
 hits_bs = circular.mle_vonmises_bootstrap_ci(hits_circ)
 print('Von Mises fit for hits by time (hours past 00:00 UTC)')
 print(hits_bs)
 
-grdevices.png('analytics_out/hits_by_time_von_mises_bs_mu.png')
+grdevices.png('analytics_out/hits_by_time_von_mises_point.png')
+circular.plot_circular(hits_circ, stack = True,
+                       main = 'Hits by time (hours past 00:00 UTC)')
+for reps in range(100):
+    hits_mle = circular.mle_vonmises(hits_circ)
+    mle_samp = circular.rvonmises(n = len(time_hits),
+                                  mu = hits_mle.rx2('mu'),
+                                  kappa = hits_mle.rx2('kappa'))
+    mle_density = circular.density_circular(mle_samp, bw = 100)
+    graphics.lines(mle_density, offset = 0.5, shrink = 0.5,
+                   col = grdevices.rgb(1, 0, 0, 0.1))
+graphics.lines(hits_density, offset = 0.5, shrink = 0.5, col = 'blue')
+grdevices.dev_off()
+
+grdevices.png('analytics_out/hits_by_time_von_mises_bs.png')
 circular.rose_diag(hits_bs.rx('mu'), bins = 24,
                    main = 'Hits by time (hours past 00:00 UTC)')
+for reps in range(100):
+    hits_circ_bs = base.sample(hits_circ, replace = True)
+    hits_mle = circular.mle_vonmises(hits_circ_bs)
+    mle_samp = circular.rvonmises(n = len(time_hits),
+                                  mu = hits_mle.rx2('mu'),
+                                  kappa = hits_mle.rx2('kappa'))
+    mle_density = circular.density_circular(mle_samp, bw = 100)
+    graphics.lines(mle_density, offset = 0.5, shrink = 0.5,
+                   col = grdevices.rgb(1, 0, 0, 0.1))
 graphics.lines(hits_density, offset = 0.5, shrink = 0.5, col = 'blue')
-graphics.lines(mle_density, offset = 0.5, shrink = 0.5, col = 'red')
 grdevices.dev_off()
