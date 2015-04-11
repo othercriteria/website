@@ -185,6 +185,7 @@ print('\n')
 # Generate figures
 time_hits_vec = FloatVector(time_hits)
 grdevices.png('analytics_out/hits_by_time.png')
+graphics.par(mar = [1,1,1,1])
 graphics.hist(time_hits_vec, main = 'Hits by time', breaks = 24,
               xlab = 'time (hours past 00:00 UTC)', ylab = 'hits')
 grdevices.dev_off()
@@ -197,6 +198,7 @@ print('Von Mises fit for hits by time (hours past 00:00 UTC)')
 print(hits_bs)
 
 grdevices.png('analytics_out/hits_by_time_von_mises_point.png')
+graphics.par(mar = [1,1,1,1])
 circular.plot_circular(hits_circ, stack = True,
                        main = 'Hits by time (hours past 00:00 UTC)')
 for reps in range(100):
@@ -211,6 +213,7 @@ graphics.lines(hits_density, offset = 0.5, shrink = 0.5, col = 'blue')
 grdevices.dev_off()
 
 grdevices.png('analytics_out/hits_by_time_von_mises_bs.png')
+graphics.par(mar = [1,1,1,1])
 circular.rose_diag(hits_bs.rx('mu'), bins = 24,
                    main = 'Hits by time (hours past 00:00 UTC)')
 for reps in range(100):
