@@ -7,6 +7,7 @@ from datetime import datetime
 from collections import Counter, defaultdict
 import http.client
 import json
+from math import cos, sin, pi
 
 # Interface to R for analysis and visualization
 import rpy2.robjects as robjects
@@ -212,12 +213,21 @@ for reps in range(100):
 graphics.lines(hits_density, offset = 0.5, shrink = 0.5, col = 'blue')
 grdevices.dev_off()
 
+def moment_plot(c, col):
+    m_clock = circular.mean_circular(c)
+    m_circ = circular.conversion_circular(m_clock, units = 'radians',
+                                          rotation = 'counter', zero = 0)
+    m = base.cbind(m_circ)[0]
+    v = base.cbind(circular.var_circular(c))[0]
+    graphics.points((1 - v) * cos(m), (1 - v) * sin(m), col = col)
+
 grdevices.png('analytics_out/hits_by_time_von_mises_bs.png')
 graphics.par(mar = [1,1,1,1])
 circular.rose_diag(hits_bs.rx('mu'), bins = 24,
                    main = 'Hits by time (hours past 00:00 UTC)')
 for reps in range(100):
     hits_circ_bs = base.sample(hits_circ, replace = True)
+    moment_plot(hits_circ_bs, grdevices.rgb(1, 0, 0, 0.1))
     hits_mle = circular.mle_vonmises(hits_circ_bs)
     mle_samp = circular.rvonmises(n = len(time_hits),
                                   mu = hits_mle.rx2('mu'),
@@ -226,4 +236,5 @@ for reps in range(100):
     graphics.lines(mle_density, offset = 0.5, shrink = 0.5,
                    col = grdevices.rgb(1, 0, 0, 0.1))
 graphics.lines(hits_density, offset = 0.5, shrink = 0.5, col = 'blue')
+moment_plot(hits_circ, 'blue')
 grdevices.dev_off()
