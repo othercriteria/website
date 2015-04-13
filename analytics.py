@@ -194,8 +194,16 @@ grdevices.dev_off()
 hits_circ = circular.circular(time_hits_vec,
                               units = 'hours', template = 'clock24')
 hits_density = circular.density_circular(hits_circ, bw = 100)
-hits_bs = circular.mle_vonmises_bootstrap_ci(hits_circ)
+
 print('Von Mises fit for hits by time (hours past 00:00 UTC)')
+hits_mle = circular.mle_vonmises(hits_circ)
+mu = base.cbind(hits_mle.rx('mu'))[0][0]
+mu_se = hits_mle.rx('se.mu')[0][0]
+kappa = hits_mle.rx('kappa')[0][0]
+kappa_se = hits_mle.rx('se.kappa')[0][0]
+print('MLE: mu = %0.2f (%0.2f)  kappa = %0.2f (%0.2f)' %
+      (mu, mu_se, kappa, kappa_se))
+hits_bs = circular.mle_vonmises_bootstrap_ci(hits_circ)
 print(hits_bs)
 
 grdevices.png('analytics_out/hits_by_time_von_mises_point.png')
