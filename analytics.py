@@ -210,9 +210,9 @@ grdevices.png('analytics_out/hits_by_time_von_mises_point.png')
 graphics.par(mar = [1,1,1,1])
 circular.plot_circular(hits_circ, stack = True,
                        main = 'Hits by time (hours past 00:00 UTC)')
+hits_mle = circular.mle_vonmises(hits_circ)
 for reps in range(100):
-    hits_mle = circular.mle_vonmises(hits_circ)
-    mle_samp = circular.rvonmises(n = len(time_hits),
+    mle_samp = circular.rvonmises(n = len(hits_circ),
                                   mu = hits_mle.rx2('mu'),
                                   kappa = hits_mle.rx2('kappa'))
     mle_density = circular.density_circular(mle_samp, bw = 100)
@@ -237,7 +237,7 @@ for reps in range(100):
     hits_circ_bs = base.sample(hits_circ, replace = True)
     moment_plot(hits_circ_bs, grdevices.rgb(1, 0, 0, 0.1))
     hits_mle = circular.mle_vonmises(hits_circ_bs)
-    mle_samp = circular.rvonmises(n = len(time_hits),
+    mle_samp = circular.rvonmises(n = len(hits_circ),
                                   mu = hits_mle.rx2('mu'),
                                   kappa = hits_mle.rx2('kappa'))
     mle_density = circular.density_circular(mle_samp, bw = 100)
