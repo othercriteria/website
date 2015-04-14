@@ -235,6 +235,9 @@ circular.rose_diag(hits_bs.rx('mu'), bins = 24,
                    main = 'Hits by time (hours past 00:00 UTC)')
 for reps in range(100):
     hits_circ_bs = base.sample(hits_circ, replace = True)
+    bs_density = circular.density_circular(hits_circ_bs, bw = 100)
+    graphics.lines(bs_density, offset = 0.5, shrink = 0.5,
+                   col = grdevices.rgb(0, 0, 0, 0.1))
     moment_plot(hits_circ_bs, grdevices.rgb(1, 0, 0, 0.1))
     hits_mle = circular.mle_vonmises(hits_circ_bs)
     mle_samp = circular.rvonmises(n = len(hits_circ),
