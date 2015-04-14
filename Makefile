@@ -9,8 +9,8 @@ RMD_OUT := $(RMD_SRC:.Rmd=.md)
 
 generate: _site
 
-Main: site.hs
-	halcyon install
+Main: generator/site.hs
+	cd generator && halcyon install
 
 _site: Main $(RMD_OUT) posts/* css/*.css images/* links/* root/* root_static/*
 	site rebuild
