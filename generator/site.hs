@@ -7,7 +7,7 @@ import           Text.Pandoc.Options
 
 -------------------------------------------------------------------------------
 main :: IO ()
-main = hakyll $ do
+main = hakyllWith config $ do
     match "root_static/*" $ do
         route   $ gsubRoute "root_static/" (const "")
         compile copyFileCompiler
@@ -165,6 +165,6 @@ pandocMathCompiler =
 
 ------------------------------------------------------------------------------
 config :: Configuration
-config = defaultConfigurations
+config = defaultConfiguration
   { deployCommand = "s3cmd -P sync _site/ s3://mesokurtosis.com/"
   }
