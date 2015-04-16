@@ -162,3 +162,9 @@ pandocMathCompiler =
                               , writerHTMLMathMethod = MathJax ""
                               }
     in pandocCompilerWith defaultHakyllReaderOptions writerOptions
+
+------------------------------------------------------------------------------
+config :: Configuration
+config = defaultConfigurations
+  { deployCommand = "s3cmd -P sync _site/ s3://mesokurtosis.com/"
+  }

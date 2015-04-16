@@ -19,7 +19,7 @@ preview: _site
 	site watch
 
 sync: _site
-	s3cmd -P sync _site/ s3://mesokurtosis.com/
+	site deploy
 
 analytics:
 	s3cmd sync s3://logs.mesokurtosis.com/root/ logs/
