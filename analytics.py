@@ -3,7 +3,7 @@
 import csv
 import re
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from collections import Counter, defaultdict
 import http.client
 import json
@@ -183,11 +183,13 @@ import rpy2.robjects as robjects
 import rpy2.robjects.lib.ggplot2 as ggplot
 from rpy2.robjects import IntVector
 from rpy2.robjects import FloatVector
+from rpy2.robjects import POSIXct
 from rpy2.robjects.packages import importr
 base = importr('base')
 graphics = importr('graphics')
 grdevices = importr('grDevices')
 circular = importr('circular')
+scales = importr('scales')
 
 # Restructure date data
 # TODO: make this less hacky
@@ -199,26 +201,37 @@ for date in date_hits:
     hits_arr[int(base.as_Date(date)[0]) - int(start[0])] = date_hits[date]
 hits = IntVector(hits_arr)
 
-# Generate figures
 grdevices.png('analytics_out/hits_by_date.png')
 graphics.par(mar = [1,1,1,1])
-df_hits_by_date = robjects.DataFrame({'date': dates, 'hits': hits})
-pp = ggplot.ggplot(df_hits_by_date) + \
+df = robjects.DataFrame({'date': dates, 'hits': hits})
+pp = ggplot.ggplot(df) + \
     ggplot.aes_string(x = 'date', y = 'hits') + \
-    ggplot.geom_line()
+    ggplot.geom_point() + \
+    ggplot.geom_smooth(method = 'loess')
 pp.plot()
 grdevices.dev_off()
 
-time_hits_vec = FloatVector(time_hits)
+# Restructure hour data
+hour_arr = []
+hits_arr = []
+for hour in hour_hits:
+    hour_arr.append(datetime.min + timedelta(hours = int(hour[0:2])))
+    hits_arr.append(hour_hits[hour])
+hour = POSIXct(hour_arr)
+hits = IntVector(hits_arr)
+
 grdevices.png('analytics_out/hits_by_time.png')
 graphics.par(mar = [1,1,1,1])
-df_hits_by_time = robjects.DataFrame({'time': time_hits_vec})
-pp = ggplot.ggplot(df_hits_by_time) + \
-    ggplot.aes_string(x = 'time') + \
-    ggplot.geom_histogram(binwidth = 1)
+df = robjects.DataFrame({'hour': POSIXct(hour), 'hits': IntVector(hits)})
+pp = ggplot.ggplot(df) + \
+    ggplot.aes_string(x = 'hour', y = 'hits') + \
+    ggplot.scale_x_datetime(labels = scales.date_format('%H:%M UTC')) + \
+    ggplot.geom_bar(stat = 'identity')
 pp.plot()
 grdevices.dev_off()
 
+# Restructure circular hit time datax
+time_hits_vec = FloatVector(time_hits)
 hits_circ = circular.circular(time_hits_vec,
                               units = 'hours', template = 'clock24')
 hits_density = circular.density_circular(hits_circ, bw = 100)
