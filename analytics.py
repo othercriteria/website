@@ -109,7 +109,6 @@ for infile in log_files:
 
         first_in_file = True
         for line in log_reader:
-            print(line)
             # Parse remote IP so it can be checked against prefixes
             remote_ip_str = line[4]
             remote_ip = ipre.search(remote_ip_str)
