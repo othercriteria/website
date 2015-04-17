@@ -182,6 +182,7 @@ print('\n')
 import rpy2.robjects as robjects
 import rpy2.robjects.lib.ggplot2 as ggplot
 from rpy2.robjects import IntVector
+from rpy2.robjects import FloatVector
 from rpy2.robjects.packages import importr
 base = importr('base')
 graphics = importr('graphics')
@@ -211,8 +212,11 @@ grdevices.dev_off()
 time_hits_vec = FloatVector(time_hits)
 grdevices.png('analytics_out/hits_by_time.png')
 graphics.par(mar = [1,1,1,1])
-graphics.hist(time_hits_vec, main = 'Hits by time', breaks = 24,
-              xlab = 'time (hours past 00:00 UTC)', ylab = 'hits')
+df_hits_by_time = robjects.DataFrame({'time': time_hits_vec})
+pp = ggplot.ggplot(df_hits_by_time) + \
+    ggplot.aes_string(x = 'time') + \
+    ggplot.geom_histogram(binwidth = 1)
+pp.plot()
 grdevices.dev_off()
 
 hits_circ = circular.circular(time_hits_vec,
