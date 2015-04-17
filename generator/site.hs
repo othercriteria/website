@@ -20,6 +20,13 @@ main = hakyllWith config $ do
         route   idRoute
         compile compressCssCompiler
 
+    match "root/stats.md" $ do
+        route   $ (gsubRoute "root/" (const "")) `composeRoutes`
+                  setExtension "html"
+        compile $ pandocCompiler
+            >>= loadAndApplyTemplate "templates/default.html" defaultContext
+            >>= relativizeUrls
+
     match "root/about.md" $ do
         let aboutCtx =
                 constField "page-about" "" `mappend`

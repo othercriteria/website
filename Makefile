@@ -26,6 +26,8 @@ analytics:
 	rsync -avzh logs/ ~/Dropbox/mesokurtosis/logs/
 	mkdir -p analytics_out
 	./analytics.py
+	cp analytics_out/* images/
+	echo `date` > root/analytics_date
 
 stage:
 	rsync -avzh --exclude '.DS_Store' --exclude '*.Rmd' \
