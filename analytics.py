@@ -180,7 +180,8 @@ print('\n')
 
 # Interface to R for analysis and visualization
 import rpy2.robjects as robjects
-from rpy2.robjects import FloatVector
+import rpy2.robjects.lib.ggplot2 as ggplot
+from rpy2.robjects import IntVector
 from rpy2.robjects.packages import importr
 base = importr('base')
 graphics = importr('graphics')
@@ -192,14 +193,19 @@ circular = importr('circular')
 start = base.as_Date(min(date_hits.elements()))
 end = base.as_Date(max(date_hits.elements()))
 dates = base.seq(start, end, by = 'day')
-hits = [0] * len(dates)
+hits_arr = [0] * len(dates)
 for date in date_hits:
-    hits[int(base.as_Date(date)[0]) - int(start[0])] = date_hits[date]
+    hits_arr[int(base.as_Date(date)[0]) - int(start[0])] = date_hits[date]
+hits = IntVector(hits_arr)
 
 # Generate figures
 grdevices.png('analytics_out/hits_by_date.png')
 graphics.par(mar = [1,1,1,1])
-graphics.plot(dates, hits)
+df_hits_by_date = robjects.DataFrame({'date': dates, 'hits': hits})
+pp = ggplot.ggplot(df_hits_by_date) + \
+    ggplot.aes_string(x = 'date', y = 'hits') + \
+    ggplot.geom_line()
+pp.plot()
 grdevices.dev_off()
 
 time_hits_vec = FloatVector(time_hits)
