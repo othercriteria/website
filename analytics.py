@@ -55,7 +55,7 @@ excluded = set()
 
 class GeoIP():
     def __init__(self):
-        self.conn = http.client.HTTPConnection('freegeoip.net')
+        self.conn = http.client.HTTPConnection('freegeoip.net', timeout = 10)
 
         try:
             with open('cache/geoip.json', 'r') as infile:
@@ -66,18 +66,21 @@ class GeoIP():
     def fetch(self, ip):
         if ip in self.cache:
             return self.cache[ip]
-        
-        self.conn.request('GET', '/json/' + ip)
 
-        response = self.conn.getresponse()
-        print('Querying GeoIP:', response.status, response.reason)
+        try:
+            self.conn.request('GET', '/json/' + ip)
 
-        data_serialized = response.read().decode('utf-8')
-        data = json.loads(data_serialized)
+            response = self.conn.getresponse()
+            print('Querying GeoIP:', response.status, response.reason)
 
-        self.cache[ip] = data
-        
-        return data
+            data_serialized = response.read().decode('utf-8')
+            data = json.loads(data_serialized)
+
+            self.cache[ip] = data
+
+            return data
+        except:
+            return None
 
     def dump(self):
         with open('cache/geoip.json', 'w') as outfile:
@@ -106,6 +109,7 @@ for infile in log_files:
 
         first_in_file = True
         for line in log_reader:
+            print(line)
             # Parse remote IP so it can be checked against prefixes
             remote_ip_str = line[4]
             remote_ip = ipre.search(remote_ip_str)
@@ -152,14 +156,15 @@ for infile in log_files:
                     agent_hits[agent.split(' ')[0]] += 1
 
                 report = geoip.fetch(remote_ip_str)
-                if 'country_name' in report:
-                    country_name = report['country_name']
-                    if not country_name == '':
-                        country_hits[report['country_name']] += 1
-                if 'region_name' in report:
-                    region_name = report['region_name']
-                    if not region_name == '':
-                        region_hits[report['region_name']] += 1
+                if not report is None:
+                    if 'country_name' in report:
+                        country_name = report['country_name']
+                        if not country_name == '':
+                            country_hits[report['country_name']] += 1
+                    if 'region_name' in report:
+                        region_name = report['region_name']
+                        if not region_name == '':
+                            region_hits[report['region_name']] += 1
 
                 t = datetime.strptime(line[2][1:], '%d/%b/%Y:%H:%M:%S')
                 date_hits[t.strftime("%Y-%m-%d")] += 1
