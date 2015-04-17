@@ -9,15 +9,6 @@ import http.client
 import json
 from math import cos, sin, pi
 
-# Interface to R for analysis and visualization
-import rpy2.robjects as robjects
-from rpy2.robjects import FloatVector
-from rpy2.robjects.packages import importr
-base = importr('base')
-graphics = importr('graphics')
-grdevices = importr('grDevices')
-circular = importr('circular')
-
 ipre = re.compile('(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})')
 
 # IP ranges to exclude that aren't caught automatically for bot-like
@@ -187,7 +178,30 @@ print('Resources:', res_hits.most_common(), '\n')
 print('Redundant manual exclusions:', possible_robots.intersection(excluded))
 print('\n')
 
+# Interface to R for analysis and visualization
+import rpy2.robjects as robjects
+from rpy2.robjects import FloatVector
+from rpy2.robjects.packages import importr
+base = importr('base')
+graphics = importr('graphics')
+grdevices = importr('grDevices')
+circular = importr('circular')
+
+# Restructure date data
+# TODO: make this less hacky
+start = base.as_Date(min(date_hits.elements()))
+end = base.as_Date(max(date_hits.elements()))
+dates = base.seq(start, end, by = 'day')
+hits = [0] * len(dates)
+for date in date_hits:
+    hits[int(base.as_Date(date)[0]) - int(start[0])] = date_hits[date]
+
 # Generate figures
+grdevices.png('analytics_out/hits_by_date.png')
+graphics.par(mar = [1,1,1,1])
+graphics.plot(dates, hits)
+grdevices.dev_off()
+
 time_hits_vec = FloatVector(time_hits)
 grdevices.png('analytics_out/hits_by_time.png')
 graphics.par(mar = [1,1,1,1])
