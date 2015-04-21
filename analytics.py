@@ -218,7 +218,6 @@ for date in date_hits:
 hits = IntVector(hits_arr)
 
 grdevices.png('analytics_out/hits_by_date.png')
-graphics.par(mar = [1,1,1,1])
 df = robjects.DataFrame({'date': dates, 'hits': hits})
 pp = ggplot.ggplot(df) + \
     ggplot.aes_string(x = 'date', y = 'hits') + \
@@ -237,7 +236,6 @@ hour = POSIXct(hour_arr)
 hits = IntVector(hits_arr)
 
 grdevices.png('analytics_out/hits_by_time.png')
-graphics.par(mar = [1,1,1,1])
 df = robjects.DataFrame({'hour': POSIXct(hour), 'hits': IntVector(hits)})
 pp = ggplot.ggplot(df) + \
     ggplot.aes_string(x = 'hour', y = 'hits') + \
