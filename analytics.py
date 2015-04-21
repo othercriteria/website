@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from collections import Counter, defaultdict
 import http.client
 import json
-from math import cos, sin, pi
+from math import cos, sin, pi, log10
 
 ipre = re.compile('(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})')
 
@@ -190,6 +190,22 @@ graphics = importr('graphics')
 grdevices = importr('grDevices')
 circular = importr('circular')
 scales = importr('scales')
+
+# Restructure IP hit count data
+n = len(ip_hits)
+ranks = IntVector(range(1, n+1))
+counts = [c for (i, c) in ip_hits.most_common()]
+counts_sum = sum(counts)
+logfracs_arr = [log10(c / counts_sum) for c in counts]
+logfracs = FloatVector(logfracs_arr)
+
+grdevices.png('analytics_out/ip_whittaker.png')
+df = robjects.DataFrame({'rank': ranks, 'lf': logfracs})
+pp = ggplot.ggplot(df) + \
+    ggplot.aes_string(x = 'rank', y = 'lf') + \
+    ggplot.geom_point()
+pp.plot()
+grdevices.dev_off()
 
 # Restructure date data
 # TODO: make this less hacky
