@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 from collections import Counter, defaultdict
 import http.client
 import json
-from math import cos, sin, pi, log10
+from math import cos, sin, pi
 
 ipre = re.compile('(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})')
 
@@ -196,14 +196,15 @@ n = len(ip_hits)
 ranks = IntVector(range(1, n+1))
 counts = [c for (i, c) in ip_hits.most_common()]
 counts_sum = sum(counts)
-logfracs_arr = [log10(c / counts_sum) for c in counts]
-logfracs = FloatVector(logfracs_arr)
+fracs_arr = [(c / counts_sum) for c in counts]
+fracs = FloatVector(fracs_arr)
 
-grdevices.png('analytics_out/ip_whittaker.png')
-df = robjects.DataFrame({'rank': ranks, 'lf': logfracs})
+grdevices.png('analytics_out/ip_rank_abundance.png')
+df = robjects.DataFrame({'rank': ranks, 'f': fracs})
 pp = ggplot.ggplot(df) + \
-    ggplot.aes_string(x = 'rank', y = 'lf') + \
-    ggplot.geom_point()
+    ggplot.aes_string(x = 'rank', y = 'f') + \
+    ggplot.geom_point() + \
+    ggplot.scale_y_log10(name = 'fraction of hits')
 pp.plot()
 grdevices.dev_off()
 
