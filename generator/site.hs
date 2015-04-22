@@ -173,5 +173,5 @@ pandocMathCompiler =
 ------------------------------------------------------------------------------
 config :: Configuration
 config = defaultConfiguration
-  { deployCommand = "s3cmd -P sync _site/ s3://mesokurtosis.com/"
+  { deployCommand = "s3cmd --delete-removed -P sync _site/ s3://mesokurtosis.com/"
   }
