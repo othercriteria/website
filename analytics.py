@@ -33,6 +33,7 @@ def suspicious_agent(agent):
 log_files = os.listdir('logs/')
 
 ip_hits = Counter()
+ip_hits_all = Counter()
 country_hits = Counter()
 region_hits = Counter()
 date_hits = Counter()
@@ -86,6 +87,7 @@ for infile in log_files:
 
         for line in log_reader:
             remote_ip_str = line[4]
+            ip_hits_all[remote_ip_str] += 1
 
             if suspicious_key(line[8]):
                 possible_robots.add(remote_ip_str)
@@ -192,14 +194,28 @@ circular = importr('circular')
 scales = importr('scales')
 
 # Restructure IP hit count data
-n = len(ip_hits)
-ranks = IntVector(range(1, n+1))
-counts = [c for (i, c) in ip_hits.most_common()]
-counts_sum = sum(counts)
-fracs_arr = [(c / counts_sum) for c in counts]
-fracs = FloatVector(fracs_arr)
+def rank_abundance(counter):
+    n = len(counter)
+    ranks = IntVector(range(1, n+1))
+    counts = [c for (i, c) in counter.most_common()]
+    counts_sum = sum(counts)
+    fracs_arr = [(c / counts_sum) for c in counts]
+    fracs = FloatVector(fracs_arr)
+
+    return ranks, fracs
 
 grdevices.png('analytics_out/ip_rank_abundance.png')
+ranks, fracs = rank_abundance(ip_hits)
+df = robjects.DataFrame({'rank': ranks, 'f': fracs})
+pp = ggplot.ggplot(df) + \
+    ggplot.aes_string(x = 'rank', y = 'f') + \
+    ggplot.geom_point() + \
+    ggplot.scale_y_log10(name = 'fraction of hits')
+pp.plot()
+grdevices.dev_off()
+
+grdevices.png('analytics_out/ip_all_rank_abundance.png')
+ranks, fracs = rank_abundance(ip_hits_all)
 df = robjects.DataFrame({'rank': ranks, 'f': fracs})
 pp = ggplot.ggplot(df) + \
     ggplot.aes_string(x = 'rank', y = 'f') + \
