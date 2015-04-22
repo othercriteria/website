@@ -134,7 +134,6 @@ main = hakyllWith config $ do
 
             getResourceBody
                 >>= loadAndApplyTemplate "templates/default.html" errorCtx
-                >>= relativizeUrls
                 
     match "templates/*" $ compile templateCompiler
 
