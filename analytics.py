@@ -193,8 +193,7 @@ grdevices = importr('grDevices')
 circular = importr('circular')
 scales = importr('scales')
 
-# Restructure IP hit count data
-def rank_abundance(counter):
+def rank_abundance_data(counter):
     n = len(counter)
     ranks = IntVector(range(1, n+1))
     counts = [c for (i, c) in counter.most_common()]
@@ -204,25 +203,21 @@ def rank_abundance(counter):
 
     return ranks, fracs
 
-grdevices.png('analytics_out/ip_rank_abundance.png')
-ranks, fracs = rank_abundance(ip_hits)
-df = robjects.DataFrame({'rank': ranks, 'f': fracs})
-pp = ggplot.ggplot(df) + \
-    ggplot.aes_string(x = 'rank', y = 'f') + \
-    ggplot.geom_point() + \
-    ggplot.scale_y_log10(name = 'fraction of hits')
-pp.plot()
-grdevices.dev_off()
+def rank_abundance_plot(counter, name):
+    grdevices.png('analytics_out/{0}_rank_abundance.png'.format(name))
+    ranks, fracs = rank_abundance_data(counter)
+    df = robjects.DataFrame({'rank': ranks, 'f': fracs})
+    pp = ggplot.ggplot(df) + \
+        ggplot.aes_string(x = 'rank', y = 'f') + \
+        ggplot.geom_point() + \
+        ggplot.scale_y_log10(name = 'fraction of hits')
+    pp.plot()
+    grdevices.dev_off()
 
-grdevices.png('analytics_out/ip_all_rank_abundance.png')
-ranks, fracs = rank_abundance(ip_hits_all)
-df = robjects.DataFrame({'rank': ranks, 'f': fracs})
-pp = ggplot.ggplot(df) + \
-    ggplot.aes_string(x = 'rank', y = 'f') + \
-    ggplot.geom_point() + \
-    ggplot.scale_y_log10(name = 'fraction of hits')
-pp.plot()
-grdevices.dev_off()
+rank_abundance_plot(ip_hits, 'ip_hits')
+rank_abundance_plot(ip_hits_all, 'ip_hits_all')
+rank_abundance_plot(country_hits, 'country_hits')
+rank_abundance_plot(region_hits, 'region_hits')
 
 # Restructure date data
 # TODO: make this less hacky
