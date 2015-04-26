@@ -1,5 +1,16 @@
--------------------------------------------------------------------------------
 {-# LANGUAGE OverloadedStrings #-}
+-------------------------------------------------------------------------------
+-- |
+-- Description : Static site generator for mesokurtosis.com
+-- Copyright   : (c) Daniel Klein, 2015
+-- License     : MIT
+-- Maintainer  : othercriteria@gmail.com
+-- Stability   : experimental
+-- Portability : non-portable
+-------------------------------------------------------------------------------
+
+module Main where
+
 import           Data.Monoid (mappend, (<>))
 import           Hakyll
 import qualified Data.Set as S

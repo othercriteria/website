@@ -12,6 +12,7 @@ cabal.config
 /_cache
 /_site
 *~
+.#*
 Main
 site
 posts/
