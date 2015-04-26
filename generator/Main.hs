@@ -7,6 +7,7 @@
 -- Maintainer  : othercriteria@gmail.com
 -- Stability   : experimental
 -- Portability : non-portable
+--
 -------------------------------------------------------------------------------
 
 module Main where
@@ -14,7 +15,20 @@ module Main where
 import           Data.Monoid (mappend, (<>))
 import           Hakyll
 import qualified Data.Set as S
+import qualified Data.Map as M
 import           Text.Pandoc.Options
+
+------------------------------------------------------------------------------
+-- Configuration
+------------------------------------------------------------------------------
+
+config :: Configuration
+config = defaultConfiguration
+  { deployCommand = "s3cmd --delete-removed -P sync _site/ s3://mesokurtosis.com/"
+  }
+
+mathjaxScriptTag :: String
+mathjaxScriptTag = "<script type=\"text/javascript\" src=\"https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML\"></script>"
 
 -------------------------------------------------------------------------------
 main :: IO ()
@@ -35,13 +49,13 @@ main = hakyllWith config $ do
         route   $ (gsubRoute "root/" (const "")) `composeRoutes`
                   setExtension "html"
         compile $ pandocCompiler
-            >>= loadAndApplyTemplate "templates/default.html" defaultContext
+            >>= loadAndApplyTemplate "templates/default.html" baseCtx
             >>= relativizeUrls
 
     match "root/about.md" $ do
         let aboutCtx =
                 constField "page-about" "" `mappend`
-                defaultContext
+                baseCtx
 
         route   $ (gsubRoute "root/" (const "")) `composeRoutes`
                   setExtension "html"
@@ -52,7 +66,7 @@ main = hakyllWith config $ do
     match "root/contact.md" $ do
         let contactCtx =
                 constField "page-contact" "" `mappend`
-                defaultContext
+                baseCtx
 
         route   $ gsubRoute "root/" (const "") `composeRoutes`
                   setExtension "html"
@@ -70,7 +84,7 @@ main = hakyllWith config $ do
                 posts <- recentFirst =<< loadAll pattern
                 let ctx = constField "title" title                 `mappend`
                           listField "posts" postCtx (return posts) `mappend`
-                          defaultContext
+                          baseCtx
 
                 makeItem ""
                     >>= loadAndApplyTemplate "templates/tag.html"     ctx
@@ -97,7 +111,7 @@ main = hakyllWith config $ do
                     listField "posts" postCtx (return posts) `mappend`
                     constField "title" "Archives"            `mappend`
                     constField "page-archive" ""             `mappend`
-                    defaultContext
+                    baseCtx
 
             makeItem ""
                 >>= loadAndApplyTemplate "templates/archive.html" archiveCtx
@@ -112,7 +126,7 @@ main = hakyllWith config $ do
                     listField "links" linkCtx (return links) `mappend`
                     constField "title" "Links"               `mappend`
                     constField "page-links" ""               `mappend`
-                    defaultContext
+                    baseCtx
 
             makeItem ""
                 >>= loadAndApplyTemplate "templates/links.html"   linksCtx
@@ -131,7 +145,7 @@ main = hakyllWith config $ do
                     tagCloudField "tag-cloud" 80 125 tags    `mappend`
                     constField "title" "Daniel L. Klein"     `mappend`
                     constField "page-home" ""                `mappend`
-                    defaultContext
+                    baseCtx
 
             getResourceBody
                 >>= applyAsTemplate indexCtx
@@ -141,7 +155,7 @@ main = hakyllWith config $ do
     match "root/error.html" $ do
         route $ gsubRoute "root/" (const "") <> idRoute
         compile $ do
-            let errorCtx = defaultContext
+            let errorCtx = baseCtx
 
             getResourceBody
                 >>= loadAndApplyTemplate "templates/default.html" errorCtx
@@ -150,10 +164,19 @@ main = hakyllWith config $ do
 
 
 ------------------------------------------------------------------------------
+-- Contexts
+------------------------------------------------------------------------------
+
+baseCtx :: Context String
+baseCtx =
+    constField "mathjax" "" `mappend`
+    defaultContext
+
 postCtx :: Context String
 postCtx =
     dateField "date" "%e %b %Y" `mappend`
-    defaultContext
+    mathCtx                     `mappend`
+    baseCtx
 
 postCtxWithTags :: Tags -> Context String
 postCtxWithTags tags =
@@ -162,10 +185,18 @@ postCtxWithTags tags =
 
 linkCtx :: Context String
 linkCtx =
-    defaultContext
+    baseCtx
+
+mathCtx :: Context String
+mathCtx = field "mathjax" $ \item -> do
+    metadata <- getMetadata (itemIdentifier item)
+    return $ if "mathjax" `M.member` metadata
+             then mathjaxScriptTag
+             else ""
 
 ------------------------------------------------------------------------------
 -- travis.athougies.net/posts/2013-08-13-using-math-on-your-hakyll-blog.html
+------------------------------------------------------------------------------
 pandocMathCompiler :: Compiler (Item String)
 pandocMathCompiler =
     let mathExtensions    = [ Ext_tex_math_dollars
@@ -180,8 +211,3 @@ pandocMathCompiler =
                               }
     in pandocCompilerWith defaultHakyllReaderOptions writerOptions
 
-------------------------------------------------------------------------------
-config :: Configuration
-config = defaultConfiguration
-  { deployCommand = "s3cmd --delete-removed -P sync _site/ s3://mesokurtosis.com/"
-  }
