@@ -50,19 +50,16 @@ cache_restore:
 	rsync -avzh ~/Dropbox/mesokurtosis/cache/* cache/
 
 unstage:
+	rm -rf logs/
 	rm -rf posts/
 	rm -rf images/
 	rm -rf links/
 	rm -rf rmd_stage/
 	rm -rf cache/
-	rm -rf analytics_out
+	rm -rf analytics_out/
 
 clean: unstage
+	rm -rf _cache/
+	rm -rf _site/
 	find . -name '*~' | xargs rm
 	find . -name '#*#' | xargs rm
-	find . -name '*.o' | xargs rm
-	rm -f site.hi
-
-hakyll:
-	cabal update
-	cabal install --only-dependencies

@@ -12,8 +12,8 @@
 
 module Main where
 
-import           Data.Monoid (mappend, (<>))
 import           Hakyll
+import           Data.Monoid ((<>))
 import qualified Data.Set as S
 import qualified Data.Map as M
 import           Text.Pandoc.Options
@@ -21,6 +21,12 @@ import           Text.Pandoc.Options
 ------------------------------------------------------------------------------
 -- Configuration
 ------------------------------------------------------------------------------
+
+numRecent :: Int
+numRecent = 5
+
+tagCloudField' :: String -> Tags -> Context String
+tagCloudField' key ts = tagCloudField key 80 125 ts
 
 config :: Configuration
 config = defaultConfiguration
@@ -30,16 +36,27 @@ config = defaultConfiguration
 mathjaxScriptTag :: String
 mathjaxScriptTag = "<script type=\"text/javascript\" src=\"https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML\"></script>"
 
+mathExtensions :: [Text.Pandoc.Options.Extension]
+mathExtensions  = [ Ext_tex_math_dollars
+                  , Ext_latex_macros
+                  ]
+
 -------------------------------------------------------------------------------
+-- Site generator itself
+-------------------------------------------------------------------------------
+
+truncateRoute :: String -> Routes
+truncateRoute h = gsubRoute h (const "")
+
 main :: IO ()
 main = hakyllWith config $ do
     match "root_static/*" $ do
-        route   $ gsubRoute "root_static/" (const "")
-        compile copyFileCompiler
+        route   $ truncateRoute "root_static/"
+        compile   copyFileCompiler
 
     match "bootstrap/**" $ do
-        route $ gsubRoute "bootstrap/" (const "")
-        compile copyFileCompiler
+        route   $ truncateRoute "bootstrap/"
+        compile   copyFileCompiler
         
     match "images/*" $ do
         route   idRoute
@@ -50,29 +67,21 @@ main = hakyllWith config $ do
         compile compressCssCompiler
 
     match "root/stats.md" $ do
-        route   $ (gsubRoute "root/" (const "")) `composeRoutes`
+        route   $ truncateRoute "root/" `composeRoutes`
                   setExtension "html"
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/default.html" baseCtx
             >>= relativizeUrls
 
     match "root/about.md" $ do
-        let aboutCtx =
-                constField "page-about" "" `mappend`
-                baseCtx
-
-        route   $ (gsubRoute "root/" (const "")) `composeRoutes`
+        route   $ truncateRoute "root/" `composeRoutes`
                   setExtension "html"
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/default.html" aboutCtx
             >>= relativizeUrls
 
     match "root/contact.md" $ do
-        let contactCtx =
-                constField "page-contact" "" `mappend`
-                baseCtx
-
-        route   $ gsubRoute "root/" (const "") `composeRoutes`
+        route   $ truncateRoute "root/" `composeRoutes`
                   setExtension "html"
         compile $ pandocCompiler
             >>= loadAndApplyTemplate "templates/default.html" contactCtx
@@ -83,11 +92,12 @@ main = hakyllWith config $ do
 
         tagsRules tags $ \tag pattern -> do
             let title = "Posts tagged \"" ++ tag ++ "\""
-            route idRoute
+
+            route     idRoute
             compile $ do
-                posts <- recentFirst =<< loadAll pattern
-                let ctx = constField "title" title                 `mappend`
-                          listField "posts" postCtx (return posts) `mappend`
+                posts  <- recentFirst =<< loadAll pattern
+                let ctx = constField "title" title                 <>
+                          listField "posts" postCtx (return posts) <>
                           baseCtx
 
                 makeItem ""
@@ -97,7 +107,7 @@ main = hakyllWith config $ do
 
         let postCtxTagged = postCtxWithTags tags
 
-        route $ setExtension "html"
+        route   $ setExtension "html"
         compile $ pandocMathCompiler
             >>= loadAndApplyTemplate "templates/post.html"    postCtxTagged
             >>= loadAndApplyTemplate "templates/default.html" postCtxTagged
@@ -105,16 +115,16 @@ main = hakyllWith config $ do
 
     match "links/*" $ do
         compile $ pandocCompiler
-            >>= applyAsTemplate linkCtx
+            >>= applyAsTemplate baseCtx
 
     create ["archive.html"] $ do
-        route idRoute
+        route     idRoute
         compile $ do
             posts <- recentFirst =<< loadAll "posts/*"
             let archiveCtx =
-                    listField "posts" postCtx (return posts) `mappend`
-                    constField "title" "Archives"            `mappend`
-                    constField "page-archive" ""             `mappend`
+                    listField  "posts" postCtx (return posts) <>
+                    constField "title" "Archives"             <>
+                    constField "page-archive" ""              <>
                     baseCtx
 
             makeItem ""
@@ -123,13 +133,13 @@ main = hakyllWith config $ do
                 >>= relativizeUrls
 
     create ["links.html"] $ do
-        route idRoute
+        route     idRoute
         compile $ do
             links <- loadAll "links/*"
             let linksCtx =
-                    listField "links" linkCtx (return links) `mappend`
-                    constField "title" "Links"               `mappend`
-                    constField "page-links" ""               `mappend`
+                    listField  "links" baseCtx (return links) <>
+                    constField "title" "Links"                <>
+                    constField "page-links" ""                <>
                     baseCtx
 
             makeItem ""
@@ -138,17 +148,17 @@ main = hakyllWith config $ do
                 >>= relativizeUrls
                 
     match "root/index.html" $ do
-        route $ gsubRoute "root/" (const "") <> idRoute 
+        route   $ truncateRoute "root/"
         compile $ do
-            posts <- fmap (take 5) . recentFirst =<< loadAll "posts/*"
-            tags <- buildTags "posts/*" (fromCapture "tags/*.html")
+            posts <- fmap (take numRecent) . recentFirst =<< loadAll "posts/*"
+            tags  <- buildTags "posts/*" (fromCapture "tags/*.html")
             links <- loadAll "links/*"
             let indexCtx =
-                    listField "posts" postCtx (return posts) `mappend`
-                    listField "links" linkCtx (return links) `mappend`
-                    tagCloudField "tag-cloud" 80 125 tags    `mappend`
-                    constField "title" "Daniel L. Klein"     `mappend`
-                    constField "page-home" ""                `mappend`
+                    listField      "posts" postCtx (return posts) <>
+                    listField      "links" baseCtx (return links) <>
+                    tagCloudField' "tag-cloud" tags               <>
+                    constField     "title" "Daniel L. Klein"      <>
+                    constField     "page-home" ""                 <>
                     baseCtx
 
             getResourceBody
@@ -157,15 +167,12 @@ main = hakyllWith config $ do
                 >>= relativizeUrls
 
     match "root/error.html" $ do
-        route $ gsubRoute "root/" (const "") <> idRoute
+        route   $ truncateRoute "root/"
         compile $ do
-            let errorCtx = baseCtx
-
             getResourceBody
-                >>= loadAndApplyTemplate "templates/default.html" errorCtx
+                >>= loadAndApplyTemplate "templates/default.html" baseCtx
                 
     match "templates/*" $ compile templateCompiler
-
 
 ------------------------------------------------------------------------------
 -- Contexts
@@ -173,23 +180,19 @@ main = hakyllWith config $ do
 
 baseCtx :: Context String
 baseCtx =
-    constField "mathjax" "" `mappend`
+    constField "mathjax" "" <>
     defaultContext
 
 postCtx :: Context String
 postCtx =
-    dateField "date" "%e %b %Y" `mappend`
-    mathCtx                     `mappend`
+    dateField "date" "%e %b %Y" <>
+    mathCtx                     <>
     baseCtx
 
 postCtxWithTags :: Tags -> Context String
 postCtxWithTags tags =
-    tagsField "tags" tags `mappend`
+    tagsField "tags" tags <>
     postCtx
-
-linkCtx :: Context String
-linkCtx =
-    baseCtx
 
 mathCtx :: Context String
 mathCtx = field "mathjax" $ \item -> do
@@ -198,16 +201,22 @@ mathCtx = field "mathjax" $ \item -> do
              then mathjaxScriptTag
              else ""
 
+aboutCtx :: Context String
+aboutCtx =
+    constField "page-about" "" <>
+    baseCtx
+
+contactCtx :: Context String
+contactCtx =
+    constField "page-contact" "" <>
+    baseCtx
+
 ------------------------------------------------------------------------------
 -- travis.athougies.net/posts/2013-08-13-using-math-on-your-hakyll-blog.html
 ------------------------------------------------------------------------------
 pandocMathCompiler :: Compiler (Item String)
 pandocMathCompiler =
-    let mathExtensions    = [ Ext_tex_math_dollars
-                            , Ext_tex_math_double_backslash
-                            , Ext_latex_macros
-                            ]
-        defaultExtensions = writerExtensions defaultHakyllWriterOptions
+    let defaultExtensions = writerExtensions defaultHakyllWriterOptions
         newExtensions     = foldr S.insert defaultExtensions mathExtensions
         writerOptions     = defaultHakyllWriterOptions
                               { writerExtensions     = newExtensions
