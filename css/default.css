@@ -5,55 +5,38 @@ body {
     		 'Segoe UI', Optima, Arial,
 		 sans-serif;
     font-size: 16px;
-    line-height: 1.5;
-    text-align: justify;
-    margin: 0 auto 0 auto;
-    max-width: 42em;
 }
 
-div#foreground {
-    background-color: white;
-    padding: 1.5em;
+@media (min-width: 1200px) {
+  .container {
+    width: 42em;
+  }
 }
 
-div#header {
-    border-bottom: 2px solid black;
-    margin-bottom: 1.5em;
-    padding: 0.5em 0 0.5em 0;
+.container {
+    padding-left: 0px;
+    padding-right: 0px;
 }
 
-div#logo a {
-    color: black;
-    float: left;
-    font-size: 18px;
+.masthead {
     font-weight: bold;
-    text-decoration: none;
-}
-
-div#header #navigation {
-    text-align: right;
-}
-
-div#header #navigation a {
-    color: black;
-    font-size: 16px;
-    font-weight: bold;
-    margin-left: 0.5em;
-    text-decoration: none;
     text-transform: uppercase;
 }
 
-div#header #navigation a.active {
-    color: #dd0000;
+.content {
+    background-color: white;
+    padding: 1.5em;
+    line-height: 1.5;
+    text-align: justify;
+    margin: 0 auto 0 auto;
 }
 
-div#footer {
-    border-top: solid 2px black;
+footer {
+    border-top: solid 1px black;
     color: #555555;
     font-size: 12px;
     margin-top: 1.5em;
     padding: 0.5em 0 0.5em 0;
-    text-align: right;
 }
 
 .sidebar {
@@ -70,6 +53,10 @@ h1 {
 }
 
 h2 {
+    font-size: 22px;
+}
+
+h3, h4, h5, h6 {
     font-size: 20px;
 }
 
@@ -96,8 +83,10 @@ div.figure {
 }
 
 img {
-    width: 100%;
+    max-width: 100%;
     height: auto;
+    display: block;
+    margin: auto;
 }
 
 div.tag-cloud {
