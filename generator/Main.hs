@@ -36,6 +36,10 @@ main = hakyllWith config $ do
     match "root_static/*" $ do
         route   $ gsubRoute "root_static/" (const "")
         compile copyFileCompiler
+
+    match "bootstrap/**" $ do
+        route $ gsubRoute "bootstrap/" (const "")
+        compile copyFileCompiler
         
     match "images/*" $ do
         route   idRoute
