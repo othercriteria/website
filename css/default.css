@@ -4,18 +4,17 @@ body {
     font-family: Calibri, Candara, Segoe,
     		 'Segoe UI', Optima, Arial,
 		 sans-serif;
-    font-size: 16px;
+    font-size: 18px;
+}
+
+div.container {
+    padding: 0;
 }
 
 @media (min-width: 1200px) {
   .container {
-    width: 42em;
+    width: 38em;
   }
-}
-
-.container {
-    padding-left: 0px;
-    padding-right: 0px;
 }
 
 .masthead {
@@ -26,22 +25,22 @@ body {
 .content {
     background-color: white;
     padding: 1.5em;
-    line-height: 1.5;
+    line-height: 1.6;
     text-align: justify;
     margin: 0 auto 0 auto;
 }
 
+div.post {
+    margin-top: 1em;
+    line-height: 1.6;
+}
+
 footer {
     border-top: solid 1px black;
-    color: #555555;
+    color: black;
     font-size: 12px;
     margin-top: 1.5em;
     padding: 0.5em 0 0.5em 0;
-}
-
-.sidebar {
-    float: right;
-    max-width: 45%;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -64,6 +63,7 @@ div.info {
     color: #555555;
     font-size: 14px;
     font-style: italic;
+    margin-bottom: 1em;
 }
 
 div.link {
@@ -92,15 +92,14 @@ img {
 div.tag-cloud {
     display: inline-block;
     background-color: #f9f9f9;
-    margin: 0 2em 0 2em;
     padding: 0.5em;
 }
 
 p.caption {
     font-size: 14px;
     background-color: #fcfcfc;
-    margin: 0;
-    padding: 0.3em;
+    margin: 0.5em;
+    padding: 0.2em;
 }
 
 blockquote {

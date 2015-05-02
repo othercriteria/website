@@ -1,4 +1,5 @@
-<div class="info">
+<div class="post col-xs-12">
+  <div class="info">
     Posted on $date$
     $if(author)$
         by $author$
@@ -7,12 +8,12 @@
         <br>
         Tags: $tags$
     $endif$
-</div>
+  </div>
 
-$body$
+  $body$
 
-<div id="disqus_thread"></div>
-<script type="text/javascript">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
     /* * * CONFIGURATION VARIABLES * * */
     var disqus_shortname = 'mesokurtosis';
     var disqus_identifier = '$path$';
@@ -25,7 +26,10 @@ $body$
     '.disqus.com/embed.js'; (document.getElementsByTagName('head')[0]
     || document.getElementsByTagName('body')[0]).appendChild(dsq);
     })();
-</script>
-<noscript>Please enable JavaScript to view
-the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments
-powered by Disqus.</a></noscript>
+  </script>
+  <noscript>
+    Please enable JavaScript to view
+    the <a href="https://disqus.com/?ref_noscript"
+    rel="nofollow">comments powered by Disqus.</a>
+  </noscript>
+</div>
