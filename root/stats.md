@@ -2,6 +2,8 @@
 title: Access statistics
 ---
 
+<div class="post col-xs-12">
+
 Except where stated otherwise, only hits that are not suspected to originate from bots are displayed.
 
 ### Temporal patterns
@@ -35,3 +37,5 @@ Except where stated otherwise, only hits that are not suspected to originate fro
 <br>
 
 ![Rank-abundance plot for hits by region.](/images/region_hits_rank_abundance.png "Rank on x-axis, fraction of hits on y-axis")
+
+</div>

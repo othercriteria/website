@@ -2,6 +2,8 @@
 title: Contact
 ---
 
+<div class="post col-xs-12">
+
 I can be reached informally by email at
 <othercriteria@gmail.com>. Expect limited attentional latency.
 
@@ -75,3 +77,5 @@ PGP key fingerprint: BF97EA72
 <noscript>Please enable JavaScript to view
 the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments
 powered by Disqus.</a></noscript>
+
+</div>
