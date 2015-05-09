@@ -41,6 +41,59 @@ mathExtensions  = [ Ext_tex_math_dollars
                   , Ext_latex_macros
                   ]
 
+------------------------------------------------------------------------------
+-- Modified Pandoc compiler to handle MathJax
+--
+-- For source and details, see:
+--   travis.athougies.net/posts/2013-08-13-using-math-on-your-hakyll-blog.html
+------------------------------------------------------------------------------
+pandocMathCompiler :: Compiler (Item String)
+pandocMathCompiler =
+    let defaultExtensions = writerExtensions defaultHakyllWriterOptions
+        newExtensions     = foldr S.insert defaultExtensions mathExtensions
+        writerOptions     = defaultHakyllWriterOptions
+                              { writerExtensions     = newExtensions
+                              , writerHTMLMathMethod = MathJax ""
+                              }
+    in pandocCompilerWith defaultHakyllReaderOptions writerOptions
+
+------------------------------------------------------------------------------
+-- Contexts
+------------------------------------------------------------------------------
+
+baseCtx :: Context String
+baseCtx =
+    constField "mathjax" "" <>
+    defaultContext
+
+postCtx :: Context String
+postCtx =
+    dateField "date" "%e %b %Y" <>
+    mathCtx                     <>
+    baseCtx
+
+postCtxWithTags :: Tags -> Context String
+postCtxWithTags tags =
+    tagsField "tags" tags <>
+    postCtx
+
+mathCtx :: Context String
+mathCtx = field "mathjax" $ \item -> do
+    metadata <- getMetadata (itemIdentifier item)
+    return $ if "mathjax" `M.member` metadata
+             then mathjaxScriptTag
+             else ""
+
+aboutCtx :: Context String
+aboutCtx =
+    constField "page-about" "" <>
+    baseCtx
+
+contactCtx :: Context String
+contactCtx =
+    constField "page-contact" "" <>
+    baseCtx
+
 -------------------------------------------------------------------------------
 -- Site generator itself
 -------------------------------------------------------------------------------
@@ -96,8 +149,8 @@ main = hakyllWith config $ do
             route     idRoute
             compile $ do
                 posts  <- recentFirst =<< loadAll pattern
-                let ctx = constField "title" title                 <>
-                          listField "posts" postCtx (return posts) <>
+                let ctx = constField "title" title                  <>
+                          listField  "posts" postCtx (return posts) <>
                           baseCtx
 
                 makeItem ""
@@ -152,10 +205,8 @@ main = hakyllWith config $ do
         compile $ do
             posts <- fmap (take numRecent) . recentFirst =<< loadAll "posts/*"
             tags  <- buildTags "posts/*" (fromCapture "tags/*.html")
-            links <- loadAll "links/*"
             let indexCtx =
                     listField      "posts" postCtx (return posts) <>
-                    listField      "links" baseCtx (return links) <>
                     tagCloudField' "tag-cloud" tags               <>
                     constField     "title" "Daniel L. Klein"      <>
                     constField     "page-home" ""                 <>
@@ -173,54 +224,3 @@ main = hakyllWith config $ do
                 >>= loadAndApplyTemplate "templates/default.html" baseCtx
                 
     match "templates/*" $ compile templateCompiler
-
-------------------------------------------------------------------------------
--- Contexts
-------------------------------------------------------------------------------
-
-baseCtx :: Context String
-baseCtx =
-    constField "mathjax" "" <>
-    defaultContext
-
-postCtx :: Context String
-postCtx =
-    dateField "date" "%e %b %Y" <>
-    mathCtx                     <>
-    baseCtx
-
-postCtxWithTags :: Tags -> Context String
-postCtxWithTags tags =
-    tagsField "tags" tags <>
-    postCtx
-
-mathCtx :: Context String
-mathCtx = field "mathjax" $ \item -> do
-    metadata <- getMetadata (itemIdentifier item)
-    return $ if "mathjax" `M.member` metadata
-             then mathjaxScriptTag
-             else ""
-
-aboutCtx :: Context String
-aboutCtx =
-    constField "page-about" "" <>
-    baseCtx
-
-contactCtx :: Context String
-contactCtx =
-    constField "page-contact" "" <>
-    baseCtx
-
-------------------------------------------------------------------------------
--- travis.athougies.net/posts/2013-08-13-using-math-on-your-hakyll-blog.html
-------------------------------------------------------------------------------
-pandocMathCompiler :: Compiler (Item String)
-pandocMathCompiler =
-    let defaultExtensions = writerExtensions defaultHakyllWriterOptions
-        newExtensions     = foldr S.insert defaultExtensions mathExtensions
-        writerOptions     = defaultHakyllWriterOptions
-                              { writerExtensions     = newExtensions
-                              , writerHTMLMathMethod = MathJax ""
-                              }
-    in pandocCompilerWith defaultHakyllReaderOptions writerOptions
-
