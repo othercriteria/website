@@ -93,6 +93,7 @@ div.tag-cloud {
     display: inline-block;
     background-color: #f9f9f9;
     padding: 0.5em;
+    margin-bottom: 1.0em;
 }
 
 p.caption {
