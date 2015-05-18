@@ -30,7 +30,8 @@ analytics:
 	echo `date` > root/analytics_date
 
 stage:
-	rsync -avzh --exclude '.DS_Store' --exclude '*.Rmd' \
+	rsync -avzh \
+	  --exclude '.DS_Store' --exclude '*.Rmd' --exclude '*.prelim' \
 	  ~/Dropbox/mesokurtosis/* .
 	rsync -avzh ~/Dropbox/mesokurtosis/posts/*.Rmd rmd_stage/
 
@@ -54,6 +55,7 @@ unstage:
 	rm -rf posts/
 	rm -rf images/
 	rm -rf links/
+	rm -rf trivia/
 	rm -rf rmd_stage/
 	rm -rf cache/
 	rm -rf analytics_out/

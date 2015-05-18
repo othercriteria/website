@@ -170,6 +170,10 @@ main = hakyllWith config $ do
         compile $ pandocCompiler
             >>= applyAsTemplate baseCtx
 
+    match "trivia/*" $ do
+        compile $ pandocCompiler
+            >>= applyAsTemplate baseCtx
+
     create ["archive.html"] $ do
         route     idRoute
         compile $ do
@@ -198,6 +202,20 @@ main = hakyllWith config $ do
             makeItem ""
                 >>= loadAndApplyTemplate "templates/links.html"   linksCtx
                 >>= loadAndApplyTemplate "templates/default.html" linksCtx
+                >>= relativizeUrls
+
+    create ["trivia.html"] $ do
+        route     idRoute
+        compile $ do
+            trivia <- loadAll "trivia/*"
+            let triviaCtx =
+                    listField  "trivia" baseCtx (return trivia) <>
+                    constField "title" "Williams Trivia"        <>
+                    baseCtx
+
+            makeItem ""
+                >>= loadAndApplyTemplate "templates/trivia.html"  triviaCtx
+                >>= loadAndApplyTemplate "templates/default.html" triviaCtx
                 >>= relativizeUrls
                 
     match "root/index.html" $ do
