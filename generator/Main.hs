@@ -207,7 +207,7 @@ main = hakyllWith config $ do
     create ["trivia.html"] $ do
         route     idRoute
         compile $ do
-            trivia <- loadAll "trivia/*"
+            trivia <- recentFirst =<< loadAll "trivia/*"
             let triviaCtx =
                     listField  "trivia" baseCtx (return trivia) <>
                     constField "title" "Williams Trivia"        <>
