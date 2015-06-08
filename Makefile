@@ -22,7 +22,7 @@ sync: _site
 	site deploy
 
 analytics:
-	s3cmd sync s3://logs.mesokurtosis.com/root/ logs/
+	s3cmd sync --delete-after-fetch s3://logs.mesokurtosis.com/root/ logs/
 	rsync -avzh logs/ ~/Dropbox/mesokurtosis/logs/
 	mkdir -p analytics_out
 	./analytics.py

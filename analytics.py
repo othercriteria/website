@@ -31,8 +31,6 @@ def suspicious_agent(agent):
             'Google favicon' in agent or 'Disqus' in agent or
             'prismatic' in agent)
 
-new_log_files = os.listdir('logs/')
-
 ip_hits = Counter()
 ip_hits_all = Counter()
 country_hits = Counter()
@@ -55,9 +53,12 @@ class LogDB():
             self.db = []
 
     def add_new(self):
-        for infile in new_log_files:
-            with open(os.path.join('logs', infile), 'r') as log:
+        new_log_files = os.listdir('logs/')
+        for new_log_file in new_log_files:
+            f = os.path.join('logs', new_log_file)
+            with open(f, 'r') as log:
                 self.db.append(log.read())
+            os.remove(f)
 
     def dump(self):
         with open('cache/logs.json', 'w') as outfile:
