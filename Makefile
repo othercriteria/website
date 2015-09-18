@@ -32,6 +32,7 @@ analytics:
 stage:
 	rsync -avzh \
 	  --exclude '.DS_Store' --exclude '*.Rmd' --exclude '*.prelim' \
+	  --exclude 'logs/*' \
 	  ~/Dropbox/mesokurtosis/* .
 	rsync -avzh ~/Dropbox/mesokurtosis/posts/*.Rmd rmd_stage/
 
