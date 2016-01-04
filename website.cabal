@@ -14,7 +14,7 @@ build-type:          Simple
 cabal-version:       >=1.10
 
 executable website
-  hs-source-dirs:      app
+  hs-source-dirs:      generator
   main-is:             Main.hs
   ghc-options:         -Wall -threaded -optl -w -dynamic -O2
   build-depends:       base
