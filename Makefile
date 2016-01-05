@@ -14,13 +14,13 @@ Main: generator/Main.hs
 	ln -s -f .stack-work/dist/x86_64-osx/Cabal-1.22.4.0/build/website/website site
 
 _site: Main $(RMD_OUT) posts/* css/*.css images/* links/* root/* root_static/*
-	site rebuild
+	./site rebuild
 
 preview: _site
-	site watch
+	./site watch
 
 sync: _site
-	site deploy
+	./site deploy
 
 analytics:
 	s3cmd sync --delete-after-fetch s3://logs.mesokurtosis.com/root/ logs/
