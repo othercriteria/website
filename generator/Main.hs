@@ -2,7 +2,7 @@
 -------------------------------------------------------------------------------
 -- |
 -- Description : Static site generator for mesokurtosis.com
--- Copyright   : (c) Daniel Klein, 2015
+-- Copyright   : (c) Daniel Klein, 2016
 -- License     : MIT
 -- Maintainer  : othercriteria@gmail.com
 -- Stability   : experimental
