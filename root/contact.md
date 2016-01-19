@@ -17,6 +17,9 @@ minimal latency.
 
 On the Off-World Colonies, I use the destroyer ~racleb-fitwyt.
 
+IRL, I can be found, roughly, at
+[future.sends.offer](https://map.what3words.com/future.sends.offer).
+
 -----
 
 PGP key fingerprint: 9A1BE119
